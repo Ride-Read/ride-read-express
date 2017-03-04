@@ -67,7 +67,7 @@ router.post('/login', function (req, res, next) {
             created_at: user.createdAt,
             updated_at: getNowFormatDate()
         };
-        res.json({status: 0, timestamp: timestamp, user: userData});
+        res.json({status: 0, timestamp: timestamp, data: userData});
     });
 });
 
@@ -115,12 +115,81 @@ router.post('/register', function (req, res, next) {
                     created_at: user.createdAt,
                     updated_at: getNowFormatDate()
                 };
-                return res.json({status: 0, timestamp: timestamp, user: userData});
+                return res.json({status: 0, timestamp: timestamp, data: userData});
             });
         } else {
             return res.json({status: 1000})
         }
     });
+});
+
+/* verify_code */
+router.post('/verify_code', function(req, res, next) {
+
+});
+
+/* update */
+router.post('/update', function(req, res, next) {
+    if (req.body.face_url == undefined || req.body.face_url == ''
+        || req.body.uid == undefined || req.body.uid == ''
+        || req.body.nickname == undefined || req.body.nickname == ''
+        || req.body.phonenumber == undefined || req.body.phonenumber == ''
+        || req.body.birthday == undefined || req.body.birthday == ''
+        || req.body.hometown == undefined || req.body.hometown == ''
+        || req.body.location == undefined || req.body.location == ''
+        || req.body.school == undefined || req.body.school == ''
+        || req.body.sex == undefined || req.body.sex == ''
+        || req.body.signature == undefined || req.body.signature == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.career == undefined || req.body.career == '') {
+        res.json({status: 1});
+        return;
+    }
+    UserModel.update({
+        nickname: req.body.nickname,
+        birthday: req.body.birthday,
+        career: req.body.career,
+        face_url: req.body.face_url,
+        hometown: req.body.hometown,
+        location: req.body.location,
+        phonenumber: req.body.phonenumber,
+        school: req.body.school,
+        sex: req.body.sex,
+        signature: req.body.signature,
+        updated_at: getNowFormatDate()
+    },{
+        where: {
+            id: req.body.uid
+        }
+    }).then(function(result){
+        console.log('result: ' + result)
+        var userData = {
+            uid: req.body.id,
+            nickname: req.body.nickname,
+            birthday: req.body.birthday,
+            career: req.body.career,
+            face_url: req.body.face_url,
+            hometown: req.body.hometown,
+            location: req.body.location,
+            phonenumber: req.body.phonenumber,
+            school: req.body.school,
+            sex: req.body.sex,
+            signature: req.body.signature,
+        }
+        res.json({status: 0, data: userData});
+    });
+    
+});
+
+/* follower */
+router.post('/follower', function(req, res, next) {
+    
+});
+
+/* following */
+router.post('/following', function(req, res, next) {
+    
 });
 
 module.exports = router;
