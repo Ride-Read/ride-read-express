@@ -17,10 +17,11 @@ router.post('/qiniu_token', function (req, res, next) {
         || req.body.uid == undefined || req.body.uid == ''
         || req.body.filename == undefined || req.body.filename == '') {
 
-        var qiniu_token = uptoken('rideread', req.body.filename);
-
-        return res.json({status: 1, qiniu_token: qiniu_token});
+        return res.json({status: 1})
     }
+	var qiniu_token = uptoken('rideread', req.body.filename);
+
+    return res.json({status: 0, qiniu_token: qiniu_token});
 });
 
 module.exports = router;

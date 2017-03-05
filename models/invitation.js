@@ -1,27 +1,22 @@
 /**
  * Created by airing on 2017/3/4.
  */
-var Sequelize = require('sequelize');
-var sequelize = require('../config/sequelize');
-
-var Invitation = sequelize.define(
-    'invitation',
-    {
-        'uid': {
-            'type': Sequelize.INTEGER,
-            'allowNull': false
-        },
-        'code': {
-            'type': Sequelize.STRING(45),
-            'allowNull': false
-        },
-        'used': {
-            'type': Sequelize.INTEGER,
-            'allowNull': false
+module.exports = function (sequelize, DataTypes) {
+    return sequelize.define(
+        'invitation',
+        {
+            'uid': {
+                'type': DataTypes.INTEGER,
+                'allowNull': false
+            },
+            'code': {
+                'type': DataTypes.STRING(45),
+                'allowNull': false
+            },
+            'used': {
+                'type': DataTypes.INTEGER,
+                'allowNull': false
+            }
         }
-    }
-);
-
-Invitation.sync();
-
-module.exports = Invitation;
+    );
+}

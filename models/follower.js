@@ -1,44 +1,39 @@
 /**
  * Created by airing on 2017/3/4.
  */
-var Sequelize = require('sequelize');
-var sequelize = require('../config/sequelize');
-
-var Follower = sequelize.define(
-    'follower',
-    {
-        'fid': {
-            'type': Sequelize.INTEGER,
-            'allowNull': false
-        },
-        'tid': {
-            'type': Sequelize.INTEGER,
-            'allowNull': false
-        },
-        'face_url': {
-            'type': Sequelize.STRING(125),
-            'allowNull': true
-        },
-        'signature': {
-            'type': Sequelize.STRING(125),
-            'allowNull': true
-        },
-        'nickname': {
-            'type': Sequelize.STRING(125),
-            'allowNull': true
-        }
-    },
-    {
-        indexes: [
-            {
-                name: 'follower_to_userid',
-                method: 'BTREE',
-                fields: ['tid']
+module.exports = function (sequelize, DataTypes) {
+    return sequelize.define(
+        'follower',
+        {
+            'fid': {
+                'type': DataTypes.INTEGER,
+                'allowNull': false
+            },
+            'tid': {
+                'type': DataTypes.INTEGER,
+                'allowNull': false
+            },
+            'face_url': {
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
+            'signature': {
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
+            'nickname': {
+                'type': DataTypes.STRING(125),
+                'allowNull': true
             }
-        ]
-    }
-);
-
-Follower.sync();
-
-module.exports = Follower;
+        },
+        {
+            indexes: [
+                {
+                    name: 'follower_to_userid',
+                    method: 'BTREE',
+                    fields: ['tid']
+                }
+            ]
+        }
+    );
+}

@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var UserModel = require('../models/user');
-var FollowerModel = require('../models/follower');
-var FollowingModel = require('../models/following');
+var UserModel = require('../models').User;
+var FollowerModel = require('../models').Follower;
+var FollowingModel = require('../models').Following;
 var sha1 = require('sha1');
 var md5 = require('md5');
 
@@ -14,15 +14,27 @@ function getNowFormatDate() {
     var seperator2 = ":";
     var month = date.getMonth() + 1;
     var strDate = date.getDate();
+    var strHours = date.getHours();
+    var strMinutes = date.getMinutes();
+    var strSeconds = date.getSeconds();
     if (month >= 1 && month <= 9) {
         month = "0" + month;
     }
     if (strDate >= 0 && strDate <= 9) {
         strDate = "0" + strDate;
     }
+    if (strHours >= 0 && strHours <= 9) {
+        strHours = "0" + strHours;
+    }
+    if (strMinutes >= 0 && strMinutes <= 9) {
+        strMinutes = "0" + strMinutes;
+    }
+    if (strSeconds >= 0 && strSeconds <= 9) {
+        strSeconds = "0" + strSeconds;
+    }
     var currentDate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-        + 'T' + date.getHours() + seperator2 + date.getMinutes()
-        + seperator2 + date.getSeconds() + '.000Z';
+        + 'T' + strHours + seperator2 + strMinutes
+        + seperator2 + strSeconds + '.000Z';
     return currentDate;
 }
 

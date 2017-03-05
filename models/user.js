@@ -1,80 +1,70 @@
 /**
  * Created by airing on 2017/3/3.
  */
-var Sequelize = require('sequelize');
-var sequelize = require('../config/sequelize');
-var Follower = require('./follower');
-var Following = require('./following');
-
-var User = sequelize.define(
-    'user',
-    {
-        'username': {
-            'type': Sequelize.STRING(45),
-            'allowNull': false
-        },
-        'password': {
-            'type': Sequelize.STRING(45),
-            'allowNull': false
-        },
-        'sex': {
-            'type': Sequelize.INTEGER,
-            'allowNull': true
-        },
-        'school': {
-            'type': Sequelize.STRING(45),
-            'allowNull': true
-        },
-        'phonenumber': {
-            'type': Sequelize.STRING(20),
-            'allowNull': true
-        },
-        'follower': {
-            'type': Sequelize.INTEGER,
-            'allowNull': true
-        },
-        'following': {
-            'type': Sequelize.INTEGER,
-            'allowNull': true
-        },
-        'token': {
-            'type': Sequelize.STRING(15),
-            'allowNull': true
-        },
-        'hometown': {
-            'type': Sequelize.STRING(45),
-            'allowNull': true
-        },
-        'face_url': {
-            'type': Sequelize.STRING(45),
-            'allowNull': true
-        },
-        'signature': {
-            'type': Sequelize.STRING(125),
-            'allowNull': true
-        },
-        'location': {
-            'type': Sequelize.STRING(45),
-            'allowNull': true
-        },
-        'birthday': {
-            'type': Sequelize.STRING(45),
-            'allowNull': true
-        },
-        'career': {
-            'type': Sequelize.STRING(45),
-            'allowNull': true
-        },
-        'nickname': {
-            'type': Sequelize.STRING(45),
-            'allowNull': true
+module.exports = function (sequelize, DataTypes) {
+    return sequelize.define(
+        'user',
+        {
+            'username': {
+                'type': DataTypes.STRING(45),
+                'allowNull': false
+            },
+            'password': {
+                'type': DataTypes.STRING(125),
+                'allowNull': false
+            },
+            'sex': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'school': {
+                'type': DataTypes.STRING(45),
+                'allowNull': true
+            },
+            'phonenumber': {
+                'type': DataTypes.STRING(20),
+                'allowNull': true
+            },
+            'follower': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'following': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'token': {
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
+            'hometown': {
+                'type': DataTypes.STRING(45),
+                'allowNull': true
+            },
+            'face_url': {
+                'type': DataTypes.STRING(45),
+                'allowNull': true
+            },
+            'signature': {
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
+            'location': {
+                'type': DataTypes.STRING(45),
+                'allowNull': true
+            },
+            'birthday': {
+                'type': DataTypes.STRING(45),
+                'allowNull': true
+            },
+            'career': {
+                'type': DataTypes.STRING(45),
+                'allowNull': true
+            },
+            'nickname': {
+                'type': DataTypes.STRING(45),
+                'allowNull': true
+            }
         }
-    }
-);
-
-User.hasMany(Follower, {foreignKey: 'tid', targetKey: 'tid'})
-User.hasMany(Following, {foreignKey: 'fid', targetKey: 'fid'})
-
-User.sync();
-
-module.exports = User;
+    );
+}
