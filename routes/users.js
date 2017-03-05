@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var UserModel = require('../models/user');
+var FollowerModel = require('../models/follower');
+var FollowingModel = require('../models/following');
 var sha1 = require('sha1');
 var md5 = require('md5');
 
@@ -87,7 +89,9 @@ router.post('/register', function (req, res, next) {
         password: sha1(req.body.password),
         face_url: req.body.face_url,
         nickname: req.body.nickname,
-        sex: 0
+        sex: 0,
+        follower: 0,
+        following: 0
     };
     UserModel.findOne({
         where: {
@@ -182,14 +186,49 @@ router.post('/update', function(req, res, next) {
     
 });
 
-/* follower */
-router.post('/follower', function(req, res, next) {
-    
+/* followers */
+router.post('/followers', function(req, res, next) {
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == '') {
+        res.json({status: 1});
+        return;
+    }
+
+    UserModel.findOne({
+        include:[FollowerModel],
+        where: {
+            id: req.body.uid
+        }
+    }).then(function(user){
+        return res.json({status: 0, data: user.followers});
+    })
+
 });
 
-/* following */
-router.post('/following', function(req, res, next) {
-    
+/* followings */
+router.post('/followings', function(req, res, next) {
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == '') {
+        res.json({status: 1});
+        return;
+    }
+
+    UserModel.findOne({
+        include:[FollowingModel],
+        where: {
+            id: req.body.uid
+        }
+    }).then(function(user){
+        return res.json({status: 0, data: user.followings});
+    }).catch(next);
 });
+
+/* show_user */
+router.post('/show_user', function(req, res, next) {
+
+});
+
 
 module.exports = router;

@@ -3,6 +3,8 @@
  */
 var Sequelize = require('sequelize');
 var sequelize = require('../config/sequelize');
+var Follower = require('./follower');
+var Following = require('./following');
 
 var User = sequelize.define(
     'user',
@@ -69,6 +71,9 @@ var User = sequelize.define(
         }
     }
 );
+
+User.hasMany(Follower, {foreignKey: 'tid', targetKey: 'tid'})
+User.hasMany(Following, {foreignKey: 'fid', targetKey: 'fid'})
 
 User.sync();
 
