@@ -189,6 +189,46 @@ router.post('/add_comment', function (req, res, next) {
         return res.json({status: 1});
     }
 
+    var comment = {
+        userId: req.body.uid,
+        momentId: req.body.mid,
+        nickname: '',
+        face_url: '',
+        msg: req.body.msg,
+        moment: {},
+        user: {}
+    };
+
+    UserModel.findOne({
+        where: {
+            id: req.body.mid
+        }
+    }).then(function (user) {
+        comment.user = user;
+        comment.nickname = user.nickname;
+        comment.face_url = user.face_url;
+
+        MomentModel.findOne({
+            where: {
+                id: req.body.mid
+            }
+        }).then(function (moment) {
+            comment.moment = moment;
+        }).catch(next);
+
+        CommentModel.create(comment).then(function (result) {
+            var data = {};
+            data.comment_id = result.id;
+            data.face_url = result.face_url;
+            data.msg = result.msg;
+            data.nickname = result.nickname;
+            data.uid = result.userId;
+            data.created_at = result.createdAt;
+            res.json({status: 0, data: data});
+        }).catch(next);
+    }).catch(next);
+    
+    return;
 
 });
 
@@ -244,7 +284,7 @@ router.post('/add_thumbsup', function (req, res, next) {
 
 router.post('/remove_comment', function (req, res, next) {
 
-    if (req.body.commeng_id == undefined || req.body.commeng_id == ''
+    if (req.body.comment_id == undefined || req.body.comment_id == ''
         || req.body.token == undefined || req.body.token == ''
         || req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == '') {
@@ -258,6 +298,17 @@ router.post('/remove_comment', function (req, res, next) {
 router.post('/remove_thumbsup', function (req, res, next) {
 
     if (req.body.thumbs_up_id == undefined || req.body.thumbs_up_id == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == '') {
+
+        return res.json({status: 1});
+    }
+});
+
+router.post('/remove_moment', function (req, res, next) {
+
+    if (req.body.mid == undefined || req.body.mid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
         || req.body.uid == undefined || req.body.uid == '') {
