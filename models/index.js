@@ -16,7 +16,10 @@ User.hasMany(Comment, {foreignKey: 'userId', targetKey: 'userId'});
 
 Moment.hasMany(Comment, {foreignKey: 'momentId', targetKey: 'momentId'});
 Moment.hasMany(Thumbsup, {foreignKey: 'momentId', targetKey: 'momentId'});
+
 Moment.belongsTo(User);
+Thumbsup.belongsTo(Moment);
+Comment.belongsTo(Moment);
 
 sequelize.sync();
 

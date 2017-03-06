@@ -110,6 +110,8 @@ router.post('/post_moment', function (req, res, next) {
 
 router.post('/show_moment', function (req, res, next) {
 
+    // TODO: 点赞数据与评论数据
+
     if (req.body.pages == undefined || req.body.pages == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
@@ -187,8 +189,8 @@ router.post('/add_comment', function (req, res, next) {
         return res.json({status: 1});
     }
 
-    
-}
+
+});
 
 router.post('/add_thumbsup', function (req, res, next) {
 
@@ -199,6 +201,69 @@ router.post('/add_thumbsup', function (req, res, next) {
 
         return res.json({status: 1});
     }
-}
+
+    // TODO: 判断是否已经点过赞
+
+    var thumbsup = {
+        userId: req.body.uid,
+        momentId: req.body.mid,
+        nickname: '',
+        moment: {},
+        user: {}
+    };
+    
+    UserModel.findOne({
+        where: {
+            id: req.body.mid
+        }
+    }).then(function (user) {
+        thumbsup.user = user;
+        thumbsup.nickname = user.nickname;
+
+        MomentModel.findOne({
+            where: {
+                id: req.body.mid
+            }
+        }).then(function (moment) {
+            thumbsup.moment = moment;
+        }).catch(next);
+
+        ThumbsupModel.create(thumbsup).then(function (result) {
+            var data = {};
+            data.thumbs_up_id = result.id;
+            data.nickname = result.nickname;
+            data.uid = result.userId;
+            data.created_at = result.createdAt;
+            res.json({status: 0, data: data});
+        }).catch(next);
+    }).catch(next);
+    
+    return;
+
+});
+
+router.post('/remove_comment', function (req, res, next) {
+
+    if (req.body.commeng_id == undefined || req.body.commeng_id == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == '') {
+
+        return res.json({status: 1});
+    }
+
+
+});
+
+router.post('/remove_thumbsup', function (req, res, next) {
+
+    if (req.body.thumbs_up_id == undefined || req.body.thumbs_up_id == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == '') {
+
+        return res.json({status: 1});
+    }
+});
 
 module.exports = router;
