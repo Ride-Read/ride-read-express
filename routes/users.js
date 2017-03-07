@@ -237,9 +237,31 @@ router.post('/followings', function(req, res, next) {
     }).catch(next);
 });
 
-/* show_user */
-router.post('/show_user', function(req, res, next) {
+/* verify_code */
+router.post('/verify_code', function(req, res, next) {
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == '') {
 
+        res.json({status: 1});
+        return;
+    }
+
+
+});
+
+/* follow */
+router.post('/follow', function(req, res, next) {
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
+
+        res.json({status: 1});
+        return;
+    }
+
+    
 });
 
 

@@ -110,8 +110,6 @@ router.post('/post_moment', function (req, res, next) {
 
 router.post('/show_moment', function (req, res, next) {
 
-    // TODO: 点赞数据与评论数据
-
     if (req.body.pages == undefined || req.body.pages == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
@@ -122,7 +120,7 @@ router.post('/show_moment', function (req, res, next) {
     }
 
     MomentModel.findAll({
-        include: [UserModel],
+        include: [UserModel, CommentModel, ThumbsupModel],
         where: {
             userId: req.body.user_id
         }
@@ -146,6 +144,7 @@ router.post('/show_moment', function (req, res, next) {
         var moments = [];
         var user = {};
         var i = 0;
+
         result.forEach(function (moment) {
             var momentData = {};
             momentData.mid = moment.id;
@@ -153,10 +152,14 @@ router.post('/show_moment', function (req, res, next) {
             momentData.pictures = moment.pictures;
             momentData.video = moment.video;
             momentData.created_at = moment.createdAt;
+            momentData.comments = moment.comments;
+            momentData.thumbsups = moment.thumbsups;
+
             if (i >= startRow && i <= endRow) {
                 moments.push(momentData);
             }
             i++;
+
             user.uid = moment.user.id;
             user.birthday = moment.user.birthday;
             user.career = moment.user.career;
@@ -242,7 +245,15 @@ router.post('/add_thumbsup', function (req, res, next) {
         return res.json({status: 1});
     }
 
-    // TODO: 判断是否已经点过赞
+    // 判断是否已经点过赞
+    ThumbsupModel.findOne({
+        where: {
+            userId: req.body.uid,
+            momentId: req.body.mid
+        }
+    }).then(function (result) {
+        if (result != null) return res.json({status: 1000});
+    }).catch(next);
 
     var thumbsup = {
         userId: req.body.uid,
@@ -251,14 +262,14 @@ router.post('/add_thumbsup', function (req, res, next) {
         moment: {},
         user: {}
     };
-    
+
     UserModel.findOne({
         where: {
-            id: req.body.mid
+            id: req.body.uid
         }
     }).then(function (user) {
-        thumbsup.user = user;
         thumbsup.nickname = user.nickname;
+        thumbsup.user = user;
 
         MomentModel.findOne({
             where: {
@@ -292,7 +303,16 @@ router.post('/remove_comment', function (req, res, next) {
         return res.json({status: 1});
     }
 
+    CommentModel.destroy({
+        where: {
+            id: req.body.comment_id,
+            userId: req.body.uid
+        }
+    }).then(function (result) {
+        res.json({status: 0})
+    }).catch(next)
 
+    return;
 });
 
 router.post('/remove_thumbsup', function (req, res, next) {
@@ -304,6 +324,17 @@ router.post('/remove_thumbsup', function (req, res, next) {
 
         return res.json({status: 1});
     }
+
+    ThumbsupModel.destroy({
+        where: {
+            id: req.body.thumbs_up_id,
+            userId: req.body.uid
+        }
+    }).then(function (result) {
+        res.json({status: 0})
+    }).catch(next)
+
+    return;
 });
 
 router.post('/remove_moment', function (req, res, next) {
@@ -315,6 +346,17 @@ router.post('/remove_moment', function (req, res, next) {
 
         return res.json({status: 1});
     }
+
+    MomentModel.destroy({
+        where: {
+            id: req.body.mid,
+            userId: req.body.uid
+        }
+    }).then(function (result) {
+        res.json({status: 0})
+    }).catch(next)
+
+    return;
 });
 
 module.exports = router;
