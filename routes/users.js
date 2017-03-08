@@ -141,6 +141,14 @@ router.post('/register', function (req, res, next) {
 
 /* verify_code */
 router.post('/verify_code', function(req, res, next) {
+    
+    if (req.body.code == undefined || req.body.code == ''
+        || req.body.timestamp == undefined || req.body.timestamp == '') {
+        res.json({status: 1});
+        return;
+    }
+
+
 
 });
 
@@ -238,10 +246,33 @@ router.post('/followings', function(req, res, next) {
 });
 
 /* verify_code */
-router.post('/verify_code', function(req, res, next) {
-    if (req.body.uid == undefined || req.body.uid == ''
+router.post('/verify', function(req, res, next) {
+    if (req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.username == undefined || req.body.username == '') {
+
+        res.json({status: 1});
+        return;
+    }
+    UserModel.findOne({
+        where: {
+            username: req.body.username
+        }
+    }).then(function (user) {
+        if (user == null) {
+            res.json({status: 1000});
+        } else {
+            res.json({status: 0});
+        }
+    }).catch(next);
+
+    return;
+});
+
+/* reset_password */
+router.post('/reset_password', function(req, res, next) {
+    if (req.body.new_password == undefined || req.body.new_password == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == '') {
+        || req.body.username == undefined || req.body.username == '') {
 
         res.json({status: 1});
         return;
@@ -251,6 +282,7 @@ router.post('/verify_code', function(req, res, next) {
 });
 
 /* follow */
+// TODO
 router.post('/follow', function(req, res, next) {
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
@@ -261,7 +293,56 @@ router.post('/follow', function(req, res, next) {
         return;
     }
 
+    var model = {
+        follower: {},
+        following: {}
+    };
+
+    UserModel.findAll({
+        where: {
+            id: [req.body.user_id, req.body.uid]
+        }
+    }).then(function (result) {
+
+        if (result[0].id == req.body.uid) {
+            model.follower = result[0];
+            model.following = result[1];
+        } else {
+            model.follower = result[1]
+            model.following = result[0]
+        }
+
+        return res.json({status: 0, model: model});
+    }).catch(next);
+
+    // FollowingModel.create().then().catch(next);
+    // FollowerModel.create().then().catch(next);
     
+});
+
+/* unfollow */
+// TODO
+router.post('/unfollow', function(req, res, next) {
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
+
+        res.json({status: 1});
+        return;
+    }
+
+    FollowingModel.destroy({
+        where: {
+
+        }
+    }).then().catch(next);
+
+    FollowerModel.destroy({
+        where: {
+
+        }
+    }).then().catch(next);
 });
 
 
