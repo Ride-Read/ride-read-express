@@ -64,6 +64,10 @@ module.exports = function (sequelize, DataTypes) {
             'nickname': {
                 'type': DataTypes.STRING(45),
                 'allowNull': true
+            },
+            'tags': {
+                'type': DataTypes.TEXT,
+                'allowNull': true
             }
         }
     );
