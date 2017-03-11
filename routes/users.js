@@ -6,7 +6,7 @@ var FollowingModel = require('../models').Following;
 var sha1 = require('sha1');
 var md5 = require('md5');
 
-var key = 'airing';
+var KEY = 'airing';
 
 function getNowFormatDate() {
     var date = new Date();
@@ -62,7 +62,7 @@ router.post('/login', function (req, res, next) {
         if (user.password !== req.body.password) {
             return res.json({status: 1003});
         }
-        var token = md5(user.id + timestamp + key);
+        var token = md5(user.id + timestamp + KEY);
         var userData = {
             uid: user.id,
             username: user.username,
@@ -78,6 +78,7 @@ router.post('/login', function (req, res, next) {
             school: user.school,
             sex: user.sex,
             signature: user.signature,
+            tags: user.tags,
             created_at: user.createdAt,
             updated_at: getNowFormatDate()
         };
@@ -112,7 +113,7 @@ router.post('/register', function (req, res, next) {
     }).then(function (result) {
         if (!result) {
             UserModel.create(user).then(function (user) {
-                var token = md5(user.id + timestamp + key);
+                var token = md5(user.id + timestamp + KEY);
                 var userData = {
                     uid: user.id,
                     username: user.username,
@@ -127,6 +128,7 @@ router.post('/register', function (req, res, next) {
                     phonenumber: user.phonenumber,
                     school: user.school,
                     sex: user.sex,
+                    tags: user.tags,
                     signature: user.signature,
                     created_at: user.createdAt,
                     updated_at: getNowFormatDate()
@@ -166,13 +168,15 @@ router.post('/update', function(req, res, next) {
         || req.body.signature == undefined || req.body.signature == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
-        || req.body.career == undefined || req.body.career == '') {
+        || req.body.career == undefined || req.body.career == ''
+        || req.body.tags == undefined || req.body.tags == '') {
         res.json({status: 1});
         return;
     }
     UserModel.update({
         nickname: req.body.nickname,
         birthday: req.body.birthday,
+        tags: req.body.tags,
         career: req.body.career,
         face_url: req.body.face_url,
         hometown: req.body.hometown,
@@ -199,7 +203,8 @@ router.post('/update', function(req, res, next) {
             phonenumber: req.body.phonenumber,
             school: req.body.school,
             sex: req.body.sex,
-            signature: req.body.signature,
+            tags: req.body.tags,
+            signature: req.body.signature
         }
         res.json({status: 0, data: userData});
     });
@@ -282,7 +287,6 @@ router.post('/reset_password', function(req, res, next) {
 });
 
 /* follow */
-// TODO
 router.post('/follow', function(req, res, next) {
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
@@ -303,20 +307,19 @@ router.post('/follow', function(req, res, next) {
             id: [req.body.user_id, req.body.uid]
         }
     }).then(function (result) {
-
         if (result[0].id == req.body.uid) {
             model.follower = result[0];
             model.following = result[1];
         } else {
-            model.follower = result[1]
-            model.following = result[0]
+            model.follower = result[1];
+            model.following = result[0];
         }
-
-        return res.json({status: 0, model: model});
+        model.fid = model.follower.id
+        model.tid = model.following.id
+        FollowerModel.create(model).then(function (result) {
+            return res.json({status: 0});
+        }).catch(next);
     }).catch(next);
-
-    // FollowingModel.create().then().catch(next);
-    // FollowerModel.create().then().catch(next);
     
 });
 
