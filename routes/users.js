@@ -283,7 +283,22 @@ router.post('/reset_password', function(req, res, next) {
         return;
     }
 
-
+    UserModel.update({
+            password: sha1(req.body.new_password)
+        },{
+            where: {
+                username: req.body.username
+            }
+        }).then(function (result) {
+            if (result == 1) {
+                res.json({status: 0});
+                return;
+            } else {
+                res.json({status: 1000});
+                return;
+            }
+    }).catch(next);
+    
 });
 
 /* follow */
