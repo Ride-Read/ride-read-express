@@ -40,6 +40,7 @@ function getNowFormatDate() {
 
 /* user login */
 router.post('/login', function (req, res, next) {
+
     var timestamp = new Date().getTime();
 
     if (req.body.username == undefined || req.body.username == ''
@@ -47,6 +48,12 @@ router.post('/login', function (req, res, next) {
         res.json({status: 1});
         return;
     }
+
+    console.log('POST: users/login');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('username: ' + req.body.username);
+    console.log('password: ' + req.body.password);
+
     var user = {
         username: req.body.username,
         password: sha1(req.body.password)
@@ -88,6 +95,7 @@ router.post('/login', function (req, res, next) {
 
 /* user register */
 router.post('/register', function (req, res, next) {
+
     var timestamp = new Date().getTime();
 
     if (req.body.face_url == undefined || req.body.face_url == ''
@@ -97,6 +105,14 @@ router.post('/register', function (req, res, next) {
         res.json({status: 1});
         return;
     }
+
+    console.log('POST: users/register');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('nickname: ' + req.body.nickname);
+    console.log('password: ' + req.body.password);
+    console.log('face_url: ' + req.body.face_url);
+    console.log('phonenumber: ' + req.body.phonenumber);
+
     var user = {
         username: req.body.phonenumber,
         password: sha1(req.body.password),
@@ -141,19 +157,6 @@ router.post('/register', function (req, res, next) {
     });
 });
 
-/* verify_code */
-router.post('/verify_code', function(req, res, next) {
-    
-    if (req.body.code == undefined || req.body.code == ''
-        || req.body.timestamp == undefined || req.body.timestamp == '') {
-        res.json({status: 1});
-        return;
-    }
-
-
-
-});
-
 /* update */
 router.post('/update', function(req, res, next) {
     if (req.body.face_url == undefined || req.body.face_url == ''
@@ -173,6 +176,24 @@ router.post('/update', function(req, res, next) {
         res.json({status: 1});
         return;
     }
+
+    console.log('POST: users/update');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('nickname: ' + req.body.nickname);
+    console.log('face_url: ' + req.body.face_url);
+    console.log('phonenumber: ' + req.body.phonenumber);
+    console.log('uid: ' + req.body.uid);
+    console.log('birthday: ' + req.body.birthday);
+    console.log('hometown: ' + req.body.hometown);
+    console.log('location: ' + req.body.location);
+    console.log('school: ' + req.body.school);
+    console.log('sex: ' + req.body.sex);
+    console.log('signature: ' + req.body.signature);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('token: ' + req.body.token);
+    console.log('career: ' + req.body.career);
+    console.log('tags: ' + req.body.tags);
+
     UserModel.update({
         nickname: req.body.nickname,
         birthday: req.body.birthday,
@@ -220,6 +241,12 @@ router.post('/followers', function(req, res, next) {
         return;
     }
 
+    console.log('POST: users/followers');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('token: ' + req.body.token);
+
     UserModel.findOne({
         include:[FollowerModel],
         where: {
@@ -240,6 +267,12 @@ router.post('/followings', function(req, res, next) {
         return;
     }
 
+    console.log('POST: users/followings');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('token: ' + req.body.token);
+
     UserModel.findOne({
         include:[FollowingModel],
         where: {
@@ -250,7 +283,7 @@ router.post('/followings', function(req, res, next) {
     }).catch(next);
 });
 
-/* verify_code */
+/* verify */
 router.post('/verify', function(req, res, next) {
     if (req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.username == undefined || req.body.username == '') {
@@ -258,6 +291,12 @@ router.post('/verify', function(req, res, next) {
         res.json({status: 1});
         return;
     }
+
+    console.log('POST: users/verify');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('username: ' + req.body.username);
+    console.log('timestamp: ' + req.body.timestamp);
+
     UserModel.findOne({
         where: {
             username: req.body.username
@@ -282,6 +321,12 @@ router.post('/reset_password', function(req, res, next) {
         res.json({status: 1});
         return;
     }
+
+    console.log('POST: users/reset_password');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('username: ' + req.body.username);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('new_password: ' + req.body.new_password);
 
     UserModel.update({
             password: sha1(req.body.new_password)
@@ -311,6 +356,13 @@ router.post('/follow', function(req, res, next) {
         res.json({status: 1});
         return;
     }
+
+    console.log('POST: users/follow');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('user_id: ' + req.body.user_id);
 
     var model = {
         follower: {},
@@ -349,6 +401,13 @@ router.post('/unfollow', function(req, res, next) {
         res.json({status: 1});
         return;
     }
+
+    console.log('POST: users/unfollow');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('user_id: ' + req.body.user_id);
 
     FollowingModel.destroy({
         where: {

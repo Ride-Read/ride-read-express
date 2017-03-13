@@ -5,6 +5,38 @@ var MomentModel = require('../models').Moment;
 var CommentModel = require('../models').Comment;
 var ThumbsupModel = require('../models').Thumbsup;
 
+var KEY = 'airing';
+
+function getNowFormatDate() {
+    var date = new Date();
+    var seperator1 = "-";
+    var seperator2 = ":";
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    var strHours = date.getHours();
+    var strMinutes = date.getMinutes();
+    var strSeconds = date.getSeconds();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    if (strHours >= 0 && strHours <= 9) {
+        strHours = "0" + strHours;
+    }
+    if (strMinutes >= 0 && strMinutes <= 9) {
+        strMinutes = "0" + strMinutes;
+    }
+    if (strSeconds >= 0 && strSeconds <= 9) {
+        strSeconds = "0" + strSeconds;
+    }
+    var currentDate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+        + 'T' + strHours + seperator2 + strMinutes
+        + seperator2 + strSeconds + '.000Z';
+    return currentDate;
+}
+
 router.post('/post_moment', function (req, res, next) {
 
     if (req.body.type == undefined || req.body.type == ''
@@ -16,6 +48,13 @@ router.post('/post_moment', function (req, res, next) {
         return res.json({status: 1});
     }
 
+    console.log('POST: moments/post_moment');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('type: ' + req.body.type);
+    console.log('msg: ' + req.body.msg);
 
     var momentData = {};
 
@@ -119,6 +158,14 @@ router.post('/show_moment', function (req, res, next) {
         return res.json({status: 1});
     }
 
+    console.log('POST: moments/show_moment');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('pages: ' + req.body.pages);
+    console.log('user_id: ' + req.body.user_id);
+
     MomentModel.findAll({
         include: [UserModel, CommentModel, ThumbsupModel],
         where: {
@@ -192,6 +239,14 @@ router.post('/add_comment', function (req, res, next) {
         return res.json({status: 1});
     }
 
+    console.log('POST: moments/add_comment');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('msg: ' + req.body.msg);
+    console.log('mid: ' + req.body.mid);
+
     var comment = {
         userId: req.body.uid,
         momentId: req.body.mid,
@@ -244,6 +299,13 @@ router.post('/add_thumbsup', function (req, res, next) {
 
         return res.json({status: 1});
     }
+
+    console.log('POST: moments/add_thumbsup');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('mid: ' + req.body.mid);
 
     // 判断是否已经点过赞
     ThumbsupModel.findOne({
@@ -303,6 +365,13 @@ router.post('/remove_comment', function (req, res, next) {
         return res.json({status: 1});
     }
 
+    console.log('POST: moments/remove_comment');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('comment_id: ' + req.body.comment_id);
+
     CommentModel.destroy({
         where: {
             id: req.body.comment_id,
@@ -325,6 +394,13 @@ router.post('/remove_thumbsup', function (req, res, next) {
         return res.json({status: 1});
     }
 
+    console.log('POST: moments/remove_thumbsup');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('thumbs_up_id: ' + req.body.thumbs_up_id);
+
     ThumbsupModel.destroy({
         where: {
             id: req.body.thumbs_up_id,
@@ -346,6 +422,13 @@ router.post('/remove_moment', function (req, res, next) {
 
         return res.json({status: 1});
     }
+
+    console.log('POST: moments/remove_moment');
+    console.log('TIME: ' + getNowFormatDate());
+    console.log('uid: ' + req.body.uid);
+    console.log('token: ' + req.body.token);
+    console.log('timestamp: ' + req.body.timestamp);
+    console.log('mid: ' + req.body.mid);
 
     MomentModel.destroy({
         where: {
