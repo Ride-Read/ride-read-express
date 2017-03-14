@@ -17,6 +17,14 @@ module.exports = function (sequelize, DataTypes) {
             'momentId': {
             	'type': DataTypes.INTEGER,
                 'allowNull': false
+            },
+            'createdAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'updatedAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
             }
         },
         {

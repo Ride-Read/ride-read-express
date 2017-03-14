@@ -6,9 +6,13 @@ module.exports = function (sequelize, DataTypes) {
     return sequelize.define(
         'comment',
         {
-            'userId': {
+            'uid': {
                 'type': DataTypes.INTEGER,
                 'allowNull': false
+            },
+            'userId': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
             },
             'nickname': {
                 'type': DataTypes.STRING(45),
@@ -21,10 +25,18 @@ module.exports = function (sequelize, DataTypes) {
             'msg': {
                 'type': DataTypes.TEXT,
                 'allowNull': false
-             },
-             'face_url': {
-                 'type': DataTypes.STRING(125),
-                 'allowNull': false
+            },
+            'face_url': {
+                'type': DataTypes.STRING(125),
+                'allowNull': false
+            },
+            'createdAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'updatedAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
             }
         },
         {

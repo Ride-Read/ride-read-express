@@ -39,6 +39,8 @@ function getNowFormatDate() {
 
 router.post('/post_moment', function (req, res, next) {
 
+    var timestamp = new Date().getTime();
+
     if (req.body.type == undefined || req.body.type == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
@@ -64,7 +66,9 @@ router.post('/post_moment', function (req, res, next) {
 
         var moment = {
             msg: req.body.msg,
-            type: 0
+            type: 0,
+            createdAt: timestamp,
+            updatedAt: timestamp,
         }
 
         UserModel.findOne({
@@ -93,7 +97,9 @@ router.post('/post_moment', function (req, res, next) {
         var moment = {
             msg: req.body.msg,
             pictures: req.body.pictures,
-            type: 1
+            type: 1,
+            createdAt: timestamp,
+            updatedAt: timestamp,
         }
 
         UserModel.findOne({
@@ -123,7 +129,9 @@ router.post('/post_moment', function (req, res, next) {
         var moment = {
             msg: req.body.msg,
             video: req.body.video,
-            type: 2
+            type: 2,
+            createdAt: timestamp,
+            updatedAt: timestamp,
         }
 
         UserModel.findOne({
@@ -230,6 +238,8 @@ router.post('/show_moment', function (req, res, next) {
 
 router.post('/add_comment', function (req, res, next) {
 
+    var timestamp = new Date().getTime();
+
     if (req.body.msg == undefined || req.body.msg == ''
         || req.body.mid == undefined || req.body.mid == ''
         || req.body.token == undefined || req.body.token == ''
@@ -248,13 +258,15 @@ router.post('/add_comment', function (req, res, next) {
     console.log('mid: ' + req.body.mid);
 
     var comment = {
-        userId: req.body.uid,
+        uid: req.body.uid,
         momentId: req.body.mid,
         nickname: '',
         face_url: '',
         msg: req.body.msg,
         moment: {},
-        user: {}
+        user: {},
+        createdAt: timestamp,
+        updatedAt: timestamp
     };
 
     UserModel.findOne({
@@ -280,7 +292,8 @@ router.post('/add_comment', function (req, res, next) {
             data.face_url = result.face_url;
             data.msg = result.msg;
             data.nickname = result.nickname;
-            data.uid = result.userId;
+            data.uid = result.uid;
+            data.reply_uid = result.userId;
             data.created_at = result.createdAt;
             res.json({status: 0, data: data});
         }).catch(next);
@@ -291,6 +304,8 @@ router.post('/add_comment', function (req, res, next) {
 });
 
 router.post('/add_thumbsup', function (req, res, next) {
+
+    var timestamp = new Date().getTime();
 
     if (req.body.mid == undefined || req.body.mid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
@@ -322,7 +337,9 @@ router.post('/add_thumbsup', function (req, res, next) {
         momentId: req.body.mid,
         nickname: '',
         moment: {},
-        user: {}
+        user: {},
+        createdAt: timestamp,
+        updatedAt: timestamp
     };
 
     UserModel.findOne({

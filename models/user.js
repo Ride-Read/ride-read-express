@@ -68,6 +68,14 @@ module.exports = function (sequelize, DataTypes) {
             'tags': {
                 'type': DataTypes.TEXT,
                 'allowNull': true
+            },
+            'createdAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'updatedAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
             }
         }
     );

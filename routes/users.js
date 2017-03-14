@@ -87,7 +87,7 @@ router.post('/login', function (req, res, next) {
             signature: user.signature,
             tags: user.tags,
             created_at: user.createdAt,
-            updated_at: getNowFormatDate()
+            updated_at: timestamp
         };
         res.json({status: 0, timestamp: timestamp, data: userData});
     });
@@ -120,7 +120,9 @@ router.post('/register', function (req, res, next) {
         nickname: req.body.nickname,
         sex: 0,
         follower: 0,
-        following: 0
+        following: 0,
+        createdAt: timestamp,
+        updatedAt: timestamp
     };
     UserModel.findOne({
         where: {
@@ -159,6 +161,9 @@ router.post('/register', function (req, res, next) {
 
 /* update */
 router.post('/update', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
     if (req.body.face_url == undefined || req.body.face_url == ''
         || req.body.uid == undefined || req.body.uid == ''
         || req.body.nickname == undefined || req.body.nickname == ''
@@ -206,7 +211,7 @@ router.post('/update', function(req, res, next) {
         school: req.body.school,
         sex: req.body.sex,
         signature: req.body.signature,
-        updated_at: getNowFormatDate()
+        updated_at: timestamp
     },{
         where: {
             id: req.body.uid
@@ -234,6 +239,9 @@ router.post('/update', function(req, res, next) {
 
 /* followers */
 router.post('/followers', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == '') {
@@ -260,6 +268,9 @@ router.post('/followers', function(req, res, next) {
 
 /* followings */
 router.post('/followings', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == '') {
@@ -285,6 +296,9 @@ router.post('/followings', function(req, res, next) {
 
 /* verify */
 router.post('/verify', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
     if (req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.username == undefined || req.body.username == '') {
 
@@ -314,6 +328,9 @@ router.post('/verify', function(req, res, next) {
 
 /* reset_password */
 router.post('/reset_password', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
     if (req.body.new_password == undefined || req.body.new_password == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.username == undefined || req.body.username == '') {
@@ -348,6 +365,9 @@ router.post('/reset_password', function(req, res, next) {
 
 /* follow */
 router.post('/follow', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
@@ -393,6 +413,9 @@ router.post('/follow', function(req, res, next) {
 /* unfollow */
 // TODO
 router.post('/unfollow', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+    
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''

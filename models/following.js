@@ -25,6 +25,14 @@ module.exports = function (sequelize, DataTypes) {
             'nickname': {
                 'type': DataTypes.STRING(125),
                 'allowNull': true
+            },
+            'createdAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'updatedAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
             }
         },
         {

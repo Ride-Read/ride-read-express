@@ -33,6 +33,14 @@ module.exports = function (sequelize, DataTypes) {
             	'type': DataTypes.TEXT,
                 'allowNull': true
             },
+            'createdAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'updatedAt': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
+            }
         },
         {
             indexes: [
