@@ -3,8 +3,12 @@
  */
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define(
-        'user',
+        't_user',
         {
+            'ride_read_id': {
+                'type': DataTypes.STRING(45),
+                'allowNull': false
+            },
             'username': {
                 'type': DataTypes.STRING(45),
                 'allowNull': false
@@ -54,7 +58,7 @@ module.exports = function (sequelize, DataTypes) {
                 'allowNull': true
             },
             'birthday': {
-                'type': DataTypes.STRING(45),
+                'type': DataTypes.INTEGER,
                 'allowNull': true
             },
             'career': {
@@ -66,7 +70,19 @@ module.exports = function (sequelize, DataTypes) {
                 'allowNull': true
             },
             'tags': {
-                'type': DataTypes.TEXT,
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
+            'longitude': {
+                'type': DataTypes.DOUBLE,
+                'allowNull': true
+            },
+            'latitude': {
+                'type': DataTypes.DOUBLE,
+                'allowNull': true
+            },
+            'is_login': {
+                'type': DataTypes.INTEGER,
                 'allowNull': true
             },
             'createdAt': {

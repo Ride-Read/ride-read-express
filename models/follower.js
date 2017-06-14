@@ -13,17 +13,29 @@ module.exports = function (sequelize, DataTypes) {
                 'type': DataTypes.INTEGER,
                 'allowNull': false
             },
-            'face_url': {
-                'type': DataTypes.STRING(125),
-                'allowNull': true
+            'f_username': {
+                'type': DataTypes.STRING(45),
+                'allowNull': false
             },
-            'signature': {
-                'type': DataTypes.STRING(125),
-                'allowNull': true
+            't_username': {
+                'type': DataTypes.STRING(45),
+                'allowNull': false
             },
-            'nickname': {
-                'type': DataTypes.STRING(125),
-                'allowNull': true
+            'f_signature': {
+                'type': DataTypes.STRING(245),
+                'allowNull': false
+            },
+            't_signature': {
+                'type': DataTypes.STRING(245),
+                'allowNull': false
+            },
+            'f_face_url': {
+                'type': DataTypes.STRING(145),
+                'allowNull': false
+            },
+            't_face_url': {
+                'type': DataTypes.STRING(145),
+                'allowNull': false
             },
             'createdAt': {
                 'type': DataTypes.INTEGER,
@@ -33,15 +45,6 @@ module.exports = function (sequelize, DataTypes) {
                 'type': DataTypes.INTEGER,
                 'allowNull': true
             }
-        },
-        {
-            indexes: [
-                {
-                    name: 'follower_to_userid',
-                    method: 'BTREE',
-                    fields: ['tid']
-                }
-            ]
         }
     );
 }

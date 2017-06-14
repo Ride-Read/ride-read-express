@@ -1,58 +1,27 @@
 var express = require('express');
 var router = express.Router();
-var UserModel = require('../models').User;
-var FollowerModel = require('../models').Follower;
-var FollowingModel = require('../models').Following;
 var sha1 = require('sha1');
 var md5 = require('md5');
 
-var KEY = 'airing';
+var UserModel = require('../models').User;
+var FollowerModel = require('../models').Follower;
 
-function getNowFormatDate() {
-    var date = new Date();
-    var seperator1 = "-";
-    var seperator2 = ":";
-    var month = date.getMonth() + 1;
-    var strDate = date.getDate();
-    var strHours = date.getHours();
-    var strMinutes = date.getMinutes();
-    var strSeconds = date.getSeconds();
-    if (month >= 1 && month <= 9) {
-        month = "0" + month;
-    }
-    if (strDate >= 0 && strDate <= 9) {
-        strDate = "0" + strDate;
-    }
-    if (strHours >= 0 && strHours <= 9) {
-        strHours = "0" + strHours;
-    }
-    if (strMinutes >= 0 && strMinutes <= 9) {
-        strMinutes = "0" + strMinutes;
-    }
-    if (strSeconds >= 0 && strSeconds <= 9) {
-        strSeconds = "0" + strSeconds;
-    }
-    var currentDate = date.getFullYear() + seperator1 + month + seperator1 + strDate
-        + 'T' + strHours + seperator2 + strMinutes
-        + seperator2 + strSeconds + '.000Z';
-    return currentDate;
-}
+var KEY = require('.config').KEY;
+var MESSAGE = require('.config').MESSAGE;
+var log = require('./config').log;
+var YUNPIAN_APIKEY = require('./config').YUNPIAN_APIKEY;
 
 /* user login */
 router.post('/login', function (req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.username == undefined || req.body.username == ''
-        || req.body.password == undefined || req.body.password == '') {
-        res.json({status: 1});
-        return;
+    if (req.body.phonenumber == undefined || req.body.phonenumber == ''
+        || req.body.password == undefined || req.body.password == ''
+        || req.body.latitude == undefined || req.body.latitude == ''
+        || req.body.longitude == undefined || req.body.longitude == '') {
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
-
-    console.log('POST: users/login');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('username: ' + req.body.username);
-    console.log('password: ' + req.body.password);
 
     var user = {
         username: req.body.username,
@@ -64,10 +33,10 @@ router.post('/login', function (req, res, next) {
         }
     }).then(function (user) {
         if (!user) {
-            return res.json({status: 1002});
+            return res.json({status: 1002, msg: MESSAGE.USER_NOT_EXIST});
         }
-        if (user.password !== req.body.password) {
-            return res.json({status: 1003});
+        if (user.password !== sha1(req.body.password)) {
+            return res.json({status: 1003, msg: MESSAGE.PASSWORD_ERROR});
         }
         var token = md5(user.id + timestamp + KEY);
         var userData = {
@@ -86,11 +55,58 @@ router.post('/login', function (req, res, next) {
             sex: user.sex,
             signature: user.signature,
             tags: user.tags,
+            ride_read_id: user.ride_read_id,
+            longitude: user.longitude,
+            latitude: user.latitude,
             created_at: user.createdAt,
             updated_at: timestamp
         };
-        res.json({status: 0, timestamp: timestamp, data: userData});
+        res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
     });
+});
+
+/* reset_password */
+router.post('/reset_password', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
+    if (req.body.new_password == undefined || req.body.new_password == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.username == undefined || req.body.username == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    UserModel.update({
+            password: sha1(req.body.new_password)
+        },{
+            where: {
+                username: req.body.username
+            }
+        }).then(function (result) {
+            if (result == 1) {
+                res.json({status: 0, msg: MESSAGE.SUCCESS});
+                return;
+            } else {
+                res.json({status: 1002, msg: MESSAGE.USER_NOT_EXIST});
+                return;
+            }
+    }).catch(next);
+});
+
+/* login_out */
+router.post('/login_out', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    return res.json({status: 0, msg: MESSAGE.SUCCESS});
 });
 
 /* user register */
@@ -100,24 +116,17 @@ router.post('/register', function (req, res, next) {
 
     if (req.body.face_url == undefined || req.body.face_url == ''
         || req.body.password == undefined || req.body.password == ''
-        || req.body.nickname == undefined || req.body.nickname == ''
+        || req.body.username == undefined || req.body.username == ''
+        || req.body.ride_read_id == undefined || req.body.nickname == ''
         || req.body.phonenumber == undefined || req.body.phonenumber == '') {
-        res.json({status: 1});
-        return;
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    console.log('POST: users/register');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('nickname: ' + req.body.nickname);
-    console.log('password: ' + req.body.password);
-    console.log('face_url: ' + req.body.face_url);
-    console.log('phonenumber: ' + req.body.phonenumber);
-
     var user = {
-        username: req.body.phonenumber,
+        phonenumber: req.body.phonenumber,
         password: sha1(req.body.password),
         face_url: req.body.face_url,
-        nickname: req.body.nickname,
+        username: req.body.username,
         sex: 0,
         follower: 0,
         following: 0,
@@ -126,7 +135,7 @@ router.post('/register', function (req, res, next) {
     };
     UserModel.findOne({
         where: {
-            username: user.username
+            phonenumber: user.phonenumber
         }
     }).then(function (result) {
         if (!result) {
@@ -149,12 +158,15 @@ router.post('/register', function (req, res, next) {
                     tags: user.tags,
                     signature: user.signature,
                     created_at: user.createdAt,
-                    updated_at: getNowFormatDate()
+                    updated_at: getNowFormatDate(),
+                    latitude: user.latitude,
+                    longitude: user.longitude,
+                    ride_read_id: user.ride_read_id
                 };
-                return res.json({status: 0, timestamp: timestamp, data: userData});
+                return res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
             });
         } else {
-            return res.json({status: 1000})
+            return res.json({status: 1005, msg: MESSAGE.USER_ALREADY_EXIST})
         }
     });
 });
@@ -166,7 +178,7 @@ router.post('/update', function(req, res, next) {
 
     if (req.body.face_url == undefined || req.body.face_url == ''
         || req.body.uid == undefined || req.body.uid == ''
-        || req.body.nickname == undefined || req.body.nickname == ''
+        || req.body.username == undefined || req.body.username == ''
         || req.body.phonenumber == undefined || req.body.phonenumber == ''
         || req.body.birthday == undefined || req.body.birthday == ''
         || req.body.hometown == undefined || req.body.hometown == ''
@@ -177,30 +189,14 @@ router.post('/update', function(req, res, next) {
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
         || req.body.career == undefined || req.body.career == ''
-        || req.body.tags == undefined || req.body.tags == '') {
-        res.json({status: 1});
-        return;
+        || req.body.tags == undefined || req.body.tags == ''
+        || req.body.latitude == undefined || req.body.latitude == ''
+        || req.body.longitude == undefined || req.body.longitude == '') {
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    console.log('POST: users/update');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('nickname: ' + req.body.nickname);
-    console.log('face_url: ' + req.body.face_url);
-    console.log('phonenumber: ' + req.body.phonenumber);
-    console.log('uid: ' + req.body.uid);
-    console.log('birthday: ' + req.body.birthday);
-    console.log('hometown: ' + req.body.hometown);
-    console.log('location: ' + req.body.location);
-    console.log('school: ' + req.body.school);
-    console.log('sex: ' + req.body.sex);
-    console.log('signature: ' + req.body.signature);
-    console.log('timestamp: ' + req.body.timestamp);
-    console.log('token: ' + req.body.token);
-    console.log('career: ' + req.body.career);
-    console.log('tags: ' + req.body.tags);
-
     UserModel.update({
-        nickname: req.body.nickname,
+        username: req.body.username,
         birthday: req.body.birthday,
         tags: req.body.tags,
         career: req.body.career,
@@ -211,7 +207,9 @@ router.post('/update', function(req, res, next) {
         school: req.body.school,
         sex: req.body.sex,
         signature: req.body.signature,
-        updated_at: timestamp
+        updated_at: timestamp,
+        latitude: req.body.latitude,
+        longitude: req.body.longitude
     },{
         where: {
             id: req.body.uid
@@ -220,7 +218,7 @@ router.post('/update', function(req, res, next) {
         console.log('result: ' + result)
         var userData = {
             uid: req.body.id,
-            nickname: req.body.nickname,
+            username: req.body.username,
             birthday: req.body.birthday,
             career: req.body.career,
             face_url: req.body.face_url,
@@ -230,9 +228,11 @@ router.post('/update', function(req, res, next) {
             school: req.body.school,
             sex: req.body.sex,
             tags: req.body.tags,
-            signature: req.body.signature
+            signature: req.body.signature,
+            latitude: req.body.latitude,
+            longitude: req.body.longitude
         }
-        res.json({status: 0, data: userData});
+        res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
     });
     
 });
@@ -245,23 +245,34 @@ router.post('/followers', function(req, res, next) {
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == '') {
-        res.json({status: 1});
-        return;
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    console.log('POST: users/followers');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('uid: ' + req.body.uid);
-    console.log('timestamp: ' + req.body.timestamp);
-    console.log('token: ' + req.body.token);
+    FollowerModel.findAll({
+        tid: req.body.uid
+    }).then(function(followers) {
 
-    UserModel.findOne({
-        include:[FollowerModel],
-        where: {
-            id: req.body.uid
-        }
-    }).then(function(user){
-        return res.json({status: 0, data: user.followers});
+        var ids = [];
+
+        followers.forEach(function(result) {
+            ids.push(result.id);
+        })
+
+        UserModel.findAll({
+            id: ids
+        }).then(function(users) {
+            var followerData = [];
+            users.forEach(function(user) {
+                var follower = {};
+                follower.fid = user.id;
+                follower.follower_signature = user.signature;
+                follower.follower_face_url = user.face_url;
+                follower.follower_username = user.username;
+                followerData.push(follower);
+            })
+            return res.json({status: 0, data: followerData, msg: MESSAGE.SUCCESS});
+        })
+
     })
 
 });
@@ -274,24 +285,35 @@ router.post('/followings', function(req, res, next) {
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == '') {
-        res.json({status: 1});
-        return;
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    console.log('POST: users/followings');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('uid: ' + req.body.uid);
-    console.log('timestamp: ' + req.body.timestamp);
-    console.log('token: ' + req.body.token);
+    FollowerModel.findAll({
+        fid: req.body.uid
+    }).then(function(followings) {
 
-    UserModel.findOne({
-        include:[FollowingModel],
-        where: {
-            id: req.body.uid
-        }
-    }).then(function(user){
-        return res.json({status: 0, data: user.followings});
-    }).catch(next);
+        var ids = [];
+
+        followings.forEach(function(result) {
+            ids.push(result.id);
+        })
+
+        UserModel.findAll({
+            id: ids
+        }).then(function(users) {
+            var followingData = [];
+            users.forEach(function(user) {
+                var following = {};
+                following.fid = user.id;
+                following.followed_signature = user.signature;
+                following.followed_face_url = user.face_url;
+                following.followed_username = user.username;
+                followingData.push(following);
+            })
+            return res.json({status: 0, data: followingData, msg: MESSAGE.SUCCESS});
+        })
+
+    })
 });
 
 /* verify */
@@ -300,67 +322,23 @@ router.post('/verify', function(req, res, next) {
     var timestamp = new Date().getTime();
 
     if (req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.username == undefined || req.body.username == '') {
-
-        res.json({status: 1});
-        return;
+        || req.body.ride_read_id == undefined || req.body.ride_read_id == '') {
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
-
-    console.log('POST: users/verify');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('username: ' + req.body.username);
-    console.log('timestamp: ' + req.body.timestamp);
 
     UserModel.findOne({
         where: {
-            username: req.body.username
+            ride_read_id: req.body.ride_read_id
         }
     }).then(function (user) {
         if (user == null) {
-            res.json({status: 1000});
+            res.json({status: 1002, msg: MESSAGE.USER_NOT_EXIST});
         } else {
-            res.json({status: 0});
+            res.json({status: 0, msg: MESSAGE.SUCCESS});
         }
     }).catch(next);
 
     return;
-});
-
-/* reset_password */
-router.post('/reset_password', function(req, res, next) {
-
-    var timestamp = new Date().getTime();
-
-    if (req.body.new_password == undefined || req.body.new_password == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.username == undefined || req.body.username == '') {
-
-        res.json({status: 1});
-        return;
-    }
-
-    console.log('POST: users/reset_password');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('username: ' + req.body.username);
-    console.log('timestamp: ' + req.body.timestamp);
-    console.log('new_password: ' + req.body.new_password);
-
-    UserModel.update({
-            password: sha1(req.body.new_password)
-        },{
-            where: {
-                username: req.body.username
-            }
-        }).then(function (result) {
-            if (result == 1) {
-                res.json({status: 0});
-                return;
-            } else {
-                res.json({status: 1000});
-                return;
-            }
-    }).catch(next);
-    
 });
 
 /* follow */
@@ -373,45 +351,43 @@ router.post('/follow', function(req, res, next) {
         || req.body.token == undefined || req.body.token == ''
         || req.body.user_id == undefined || req.body.user_id == '') {
 
-        res.json({status: 1});
-        return;
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    console.log('POST: users/follow');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('uid: ' + req.body.uid);
-    console.log('token: ' + req.body.token);
-    console.log('timestamp: ' + req.body.timestamp);
-    console.log('user_id: ' + req.body.user_id);
-
     var model = {
-        follower: {},
-        following: {}
+        tid: req.body.user_id,
+        fid: req.body.uid
     };
 
     UserModel.findAll({
         where: {
-            id: [req.body.user_id, req.body.uid]
+            id: [req.body.uid, req.body.user_id]
         }
-    }).then(function (result) {
-        if (result[0].id == req.body.uid) {
-            model.follower = result[0];
-            model.following = result[1];
+    }).then(function(users) {
+        if (users[0].id == req.body.uid) {
+            model.f_username = users[0].username;
+            model.f_signature = users[0].signature;
+            model.f_face_url = users[0].face_url;
+            model.t_username = users[1].username;
+            model.t_signature = users[1].signature;
+            model.t_face_url = users[1].face_url;
         } else {
-            model.follower = result[1];
-            model.following = result[0];
+            model.f_username = users[1].username;
+            model.f_signature = users[1].signature;
+            model.f_face_url = users[1].face_url;
+            model.t_username = users[0].username;
+            model.t_signature = users[0].signature;
+            model.t_face_url = users[0].face_url;
         }
-        model.fid = model.follower.id
-        model.tid = model.following.id
-        FollowerModel.create(model).then(function (result) {
-            return res.json({status: 0});
-        }).catch(next);
-    }).catch(next);
+        FollowerModel.create(model).then(function() {
+            return res.json({status: 0, msg: MESSAGE.SUCCESS});
+        })
+    })
+
     
 });
 
 /* unfollow */
-// TODO
 router.post('/unfollow', function(req, res, next) {
 
     var timestamp = new Date().getTime();
@@ -421,29 +397,198 @@ router.post('/unfollow', function(req, res, next) {
         || req.body.token == undefined || req.body.token == ''
         || req.body.user_id == undefined || req.body.user_id == '') {
 
-        res.json({status: 1});
-        return;
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
-
-    console.log('POST: users/unfollow');
-    console.log('TIME: ' + getNowFormatDate());
-    console.log('uid: ' + req.body.uid);
-    console.log('token: ' + req.body.token);
-    console.log('timestamp: ' + req.body.timestamp);
-    console.log('user_id: ' + req.body.user_id);
-
-    FollowingModel.destroy({
-        where: {
-
-        }
-    }).then().catch(next);
 
     FollowerModel.destroy({
         where: {
-
+            fid: req.body.uid,
+            tid: req.body.user_id
         }
-    }).then().catch(next);
+    }).then(function (){
+        return res.json({status: 0, msg: MESSAGE.SUCCESS});
+    }).catch(next);
 });
 
+/* show_user_info */
+router.post('/show_user_info', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+    
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.type == undefined || req.body.type == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    if (req.body.type == 1) {
+        UserModel.findOne({
+            where: {
+                id: req.body.uid
+            }
+        }).then(function (user) {
+            var userData = {
+                uid: user.id,
+                username: user.username,
+                token: token,
+                birthday: user.birthday,
+                career: user.career,
+                face_url: user.face_url,
+                follower: user.follower,
+                following: user.following,
+                hometown: user.hometown,
+                location: user.location,
+                phonenumber: user.phonenumber,
+                school: user.school,
+                sex: user.sex,
+                signature: user.signature,
+                tags: user.tags,
+                ride_read_id: user.ride_read_id,
+                longitude: user.longitude,
+                latitude: user.latitude,
+                created_at: user.createdAt,
+                updated_at: timestamp,
+                is_followed: 0
+            };
+            return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
+        })
+    }
+
+    if (req.body.type == 2) {
+        UserModel.findOne({
+            where: {
+                id: req.body.user_id
+            }
+        }).then(function (user) {
+            var userData = {
+                uid: user.id,
+                username: user.username,
+                token: token,
+                birthday: user.birthday,
+                career: user.career,
+                face_url: user.face_url,
+                follower: user.follower,
+                following: user.following,
+                hometown: user.hometown,
+                location: user.location,
+                phonenumber: user.phonenumber,
+                school: user.school,
+                sex: user.sex,
+                signature: user.signature,
+                tags: user.tags,
+                ride_read_id: user.ride_read_id,
+                longitude: user.longitude,
+                latitude: user.latitude,
+                created_at: user.createdAt,
+                updated_at: timestamp,
+                is_followed: 0
+            };
+            FollowerModel.findOne({
+                tid: req.body.uid,
+                fid: req.body.user_id
+            }).then(function(result) {
+                if (!result) {
+                    return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
+                } else {
+                    userData.is_followed = 1
+                    return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
+                }
+            })
+
+            
+        })
+    }
+});
+
+/* search_follower_or_following */
+router.post('/search_follower_or_following', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+    
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.shortname == undefined || req.body.shortname == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    FollowerModel.findAll({
+        where: {
+            username: {
+                '$like': '%' + req.body.shortname + '%', 
+            },
+            // '$or': [
+            //     {'fid': req.body.uid},
+            //     {'tid': req.body.uid}
+            // ]
+            fid: req.body.uid
+        }
+    }).then(function(followings) {
+        var followingsData = [];
+        followings.forEach(function(result) {
+            var user = {};
+            user.followed_username = result.username;
+            user.tid = result.id;
+            user.followed_signature = result.signature;
+            user.followed_face_url = result.face_url;
+            followingsData.push(user);
+        })
+        FollowerModel.findAll({
+            where: {
+                username: {
+                    '$like': '%' + req.body.shortname + '%', 
+                },
+                tid: req.body.uid
+            }
+        }).then(function(followers) {
+            var followersData = [];
+            followers.forEach(function(result) {
+                var user = {};
+                user.follower_username = result.username;
+                user.fid = result.id;
+                user.follower_signature = result.signature;
+                user.follower_face_url = result.face_url;
+                followersData.push(user);
+            })
+            res.json({status: 0, timestamp: timestamp, followeds: followingsData, followers: followersData, msg: MESSAGE.SUCCESS});
+            return;
+        })
+    }).catch(next);
+});
+
+/* show_user_info_list */
+router.post('/show_user_info_list', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+    
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.user_ids == undefined || req.body.user_ids == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    var ids = req.body.user_ids.split(',');
+    UserModel.findAll({
+        where: {
+            id: ids,
+        }
+    }).then(function(result) {
+        var users = [];
+        result.forEach(function (item){
+            var user = {};
+            user.uid = item.id;
+            user.username = item.username;
+            user.face_url = item.face_url;
+            users.push(user);
+        }) 
+        res.json({status: 0, msg: MESSAGE.SUCCESS, data: users})
+        return;
+    }).catch(next);
+});
 
 module.exports = router;
