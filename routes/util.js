@@ -14,6 +14,7 @@ var YUNPIAN_APIKEY = require('./config').YUNPIAN_APIKEY;
 
 var UserModel = require('../models').User;
 var SmsCodeModel = require('../models').SmsCode;
+var VersionModel = require('../models').Version;
 
 qiniu.conf.ACCESS_KEY = QINIU_ACCESS;
 qiniu.conf.SECRET_KEY = QINIU_SECRET;
@@ -26,15 +27,20 @@ function uptoken(bucket, key) {
 /* 获取七牛token */
 router.post('/qiniu_token', function (req, res, next) {
 
+    var timestamp = new Date().getTime();
     if (req.body.token == undefined || req.body.token == ''
         || req.body.uid == undefined || req.body.uid == ''
+        || req.body.token == undefined || req.body.token == ''
         || req.body.filename == undefined || req.body.filename == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 	var qiniu_token = uptoken('rideread', req.body.filename);
+    var data = {
+        up_token: qiniu_token
+    }
 
-    return res.json({status: 0, qiniu_token: qiniu_token, msg: MESSAGE.SUCCESS});
+    return res.json({status: 0, timestamp: timestamp, data: data, msg: MESSAGE.SUCCESS});
 });
 
 /* util/yun_pian_code */
@@ -105,6 +111,31 @@ router.post('/yun_pian_code', function (req, res, next) {
     })
 
     return res.json({status: 0, msg: MESSAGE.SUCCESS});
+});
+
+// WARNING: 即将废弃的接口
+router.post('/verify_version_number', function (req, res, next) {
+
+    var timestamp = new Date().getTime();
+    if (req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == ''
+        || req.body.version_type == undefined || req.body.version_type == ''
+        || req.body.timestamp == undefined || req.body.timestamp == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    VersionModel.findOne({
+
+    }).then(function(result) {
+        var data = {
+            id: result.id,
+            create_at: result.createdAt,
+            version: result.version,
+            version_type: result.version_type
+        }
+        return res.json({status: 0, timestamp: timestamp, data: data, msg: MESSAGE.SUCCESS});
+    })
 });
 
 module.exports = router;

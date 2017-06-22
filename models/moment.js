@@ -3,7 +3,7 @@
  */
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define(
-        'moment',
+        't_moment',
         {
             'userId': {
                 'type': DataTypes.INTEGER,
@@ -31,6 +31,18 @@ module.exports = function (sequelize, DataTypes) {
             },
             'pictures': {
             	'type': DataTypes.TEXT,
+                'allowNull': true
+            },
+            'latitude': {
+                'type': DataTypes.DOUBLE,
+                'allowNull': true
+            },
+            'longitude': {
+                'type': DataTypes.DOUBLE,
+                'allowNull': true
+            },
+            'moment_location': {
+                'type': DataTypes.STRING(125),
                 'allowNull': true
             },
             'createdAt': {
