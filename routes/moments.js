@@ -6,9 +6,9 @@ var CommentModel = require('../models').Comment;
 var ThumbsupModel = require('../models').Thumbsup;
 var CollectionModel = require('../models').Collection;
 
-var KEY = require('.config').KEY;
-var MESSAGE = require('.config').MESSAGE;
-var LantitudeLongitudeDist = require('.config').LantitudeLongitudeDist;
+var KEY = require('./config').KEY;
+var MESSAGE = require('./config').MESSAGE;
+var LantitudeLongitudeDist = require('./config').LantitudeLongitudeDist;
 
 router.post('/post_moment', function (req, res, next) {
 
@@ -255,7 +255,7 @@ router.post('/add_comment', function (req, res, next) {
 
 });
 
-router.post('/add_thumbsup', function (req, res, next) {
+router.post('/update_thumbsup', function (req, res, next) {
 
     var timestamp = new Date().getTime();
 
@@ -274,44 +274,57 @@ router.post('/add_thumbsup', function (req, res, next) {
             momentId: req.body.mid
         }
     }).then(function (result) {
-        if (result != null) return res.json({status: 1000});
-    }).catch(next);
+        if (result != null) {
+            // 已经点过赞
+            ThumbsupModel.destroy({
+                where: {
+                    userId: req.body.uid,
+                    momentId: req.body.mid
+                }
+            }).then(function() {
+                res.json({status: 0, msg: MESSAGE.SUCCESS});
+                return;
+            })
+        } else {
+            // 没有点过赞
+            var thumbsup = {
+                userId: req.body.uid,
+                momentId: req.body.mid,
+                nickname: '',
+                moment: {},
+                user: {},
+                createdAt: timestamp,
+                updatedAt: timestamp
+            };
 
-    var thumbsup = {
-        userId: req.body.uid,
-        momentId: req.body.mid,
-        nickname: '',
-        moment: {},
-        user: {},
-        createdAt: timestamp,
-        updatedAt: timestamp
-    };
+            UserModel.findOne({
+                where: {
+                    id: req.body.uid
+                }
+            }).then(function (user) {
+                thumbsup.username = user.username;
+                thumbsup.user = user;
 
-    UserModel.findOne({
-        where: {
-            id: req.body.uid
+                MomentModel.findOne({
+                    where: {
+                        id: req.body.mid
+                    }
+                }).then(function (moment) {
+                    thumbsup.moment = moment;
+                    ThumbsupModel.create(thumbsup).then(function (result) {
+                        var data = {};
+                        data.thumbs_up_id = result.id;
+                        data.username = result.username;
+                        data.uid = result.userId;
+                        data.created_at = result.createdAt;
+                        res.json({status: 0, data: data});
+                    })
+                }).catch(next);
+            }).catch(next);
         }
-    }).then(function (user) {
-        thumbsup.nickname = user.nickname;
-        thumbsup.user = user;
-
-        MomentModel.findOne({
-            where: {
-                id: req.body.mid
-            }
-        }).then(function (moment) {
-            thumbsup.moment = moment;
-        }).catch(next);
-
-        ThumbsupModel.create(thumbsup).then(function (result) {
-            var data = {};
-            data.thumbs_up_id = result.id;
-            data.nickname = result.nickname;
-            data.uid = result.userId;
-            data.created_at = result.createdAt;
-            res.json({status: 0, data: data});
-        }).catch(next);
     }).catch(next);
+
+    
     
     return;
 
@@ -521,7 +534,7 @@ router.post('/collect_moment', function (req, res, next) {
     }
 
     MomentModel.findOne({
-        include: [UserModel]
+        include: [UserModel],
         where: {
             id: req.body.mid,
         }

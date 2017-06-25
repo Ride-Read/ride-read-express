@@ -11,6 +11,7 @@ const MESSAGE = {
     TYPE_ERROR: 'type参数有误', // 1001
     PICTURE_IS_NULL: '图片为空', // 1002
     VIDEO_IS_NULL: '视频为空', // 1003
+    MOMENT_IS_NULL: '附近没有阅圈', // 4000
     REQUEST_ERROR: '请求时间间隔过短', // 5000
     REQUEST_ERROR: '请求时间间隔过短', // 5000
 }

@@ -6,8 +6,8 @@ var md5 = require('md5');
 var UserModel = require('../models').User;
 var FollowerModel = require('../models').Follower;
 
-var KEY = require('.config').KEY;
-var MESSAGE = require('.config').MESSAGE;
+var KEY = require('./config').KEY;
+var MESSAGE = require('./config').MESSAGE;
 var log = require('./config').log;
 var YUNPIAN_APIKEY = require('./config').YUNPIAN_APIKEY;
 
