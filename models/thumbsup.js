@@ -6,9 +6,13 @@ module.exports = function (sequelize, DataTypes) {
     return sequelize.define(
         't_thumbs_up',
         {
-            'userId': {
+            'uid': {
                 'type': DataTypes.INTEGER,
                 'allowNull': false
+            },
+            'userId': {
+                'type': DataTypes.INTEGER,
+                'allowNull': true
             },
             'username': {
             	'type': DataTypes.STRING(45),

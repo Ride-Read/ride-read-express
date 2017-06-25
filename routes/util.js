@@ -46,6 +46,7 @@ router.post('/qiniu_token', function (req, res, next) {
 /* util/yun_pian_code */
 router.post('/yun_pian_code', function (req, res, next) {
 
+    var timestamp = new Date().getTime();
     if (req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.phonenumber == undefined || req.body.phonenumber == '') {
 
@@ -55,7 +56,7 @@ router.post('/yun_pian_code', function (req, res, next) {
 
     var postData = {
         mobile: req.body.phonenumber,
-        text:'【双生APP】您的验证码是' +  code,
+        text:'【骑阅APP】您的验证码是' +  code,
         apikey: YUNPIAN_APIKEY 
     };
 

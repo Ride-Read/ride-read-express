@@ -3,7 +3,7 @@
  */
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define(
-        'follower',
+        't_follow',
         {
             'fid': {
                 'type': DataTypes.INTEGER,

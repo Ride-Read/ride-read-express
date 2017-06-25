@@ -30,24 +30,36 @@ router.post('/post_moment', function (req, res, next) {
 
     // 纯文本
     if (req.body.type == 0) {
-        var moment = {
-            msg: req.body.msg,
-            type: 0,
-            createdAt: timestamp,
-            updatedAt: timestamp,
-        }
+
         UserModel.findOne({
+            include: [MomentModel],
             where: {
                 id: req.body.uid
             }
         }).then(function (user) {
-            user.createMoment(moment);
-            momentData.mid = moment.id;
-            momentData.msg = moment.msg;
-            momentData.uid = moment.userId;
-            momentData.type = 0;   
-            res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
-            return;
+            var moment = {
+                msg: req.body.msg,
+                type: 0,
+                userId: user.id,
+                latitude: parseFloat(req.body.latitude),
+                longitude: parseFloat(req.body.longitude),
+                moment_location: req.body.moment_location,
+                cover: 'null',
+                video: 'null',
+                thumbs: 'null',
+                pictures: 'null',
+                createdAt: timestamp,
+                updatedAt: timestamp
+            }
+            console.log(moment);
+            MomentModel.create(moment).then(function() {
+                momentData.mid = moment.id;
+                momentData.msg = moment.msg;
+                momentData.uid = moment.userId;
+                momentData.type = 0;  
+                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
+                return;
+            })
         }).catch(next);
     }
 
@@ -56,26 +68,37 @@ router.post('/post_moment', function (req, res, next) {
         if (req.body.pictures == undefined || req.body.pictures == '') {
             return res.json({status: 1002, msg: MESSAGE.PICTURE_IS_NULL});
         }
-        var moment = {
-            msg: req.body.msg,
-            pictures: req.body.pictures,
-            type: 1,
-            createdAt: timestamp,
-            updatedAt: timestamp,
-        }
+
         UserModel.findOne({
+            include: [MomentModel],
             where: {
                 id: req.body.uid
             }
         }).then(function (user) {
-            user.createMoment(moment);
-            momentData.mid = moment.id;
-            momentData.msg = moment.msg;
-            momentData.uid = moment.userId;
-            momentData.pictures = moment.pictures;
-            momentData.type = 1;   
-            res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
-            return;
+            var moment = {
+                msg: req.body.msg,
+                type: 1,
+                userId: user.id,
+                latitude: parseFloat(req.body.latitude),
+                longitude: parseFloat(req.body.longitude),
+                moment_location: req.body.moment_location,
+                cover: 'null',
+                video: 'null',
+                thumbs: 'null',
+                pictures: req.body.pictures,
+                createdAt: timestamp,
+                updatedAt: timestamp
+            }
+            console.log(moment);
+            MomentModel.create(moment).then(function() {
+                momentData.mid = moment.id;
+                momentData.msg = moment.msg;
+                momentData.uid = moment.userId;
+                momentData.pictures = moment.pictures;
+                momentData.type = 0;  
+                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
+                return;
+            })
         }).catch(next);
     }
 
@@ -84,29 +107,39 @@ router.post('/post_moment', function (req, res, next) {
         if (req.body.video == undefined || req.body.video == '') {
             return res.json({status: 1003, msg: MESSAGE.VIDEO_IS_NULL});
         }
-        var moment = {
-            msg: req.body.msg,
-            video: req.body.video,
-            type: 2,
-            createdAt: timestamp,
-            updatedAt: timestamp,
-        }
+
         UserModel.findOne({
+            include: [MomentModel],
             where: {
                 id: req.body.uid
             }
         }).then(function (user) {
-            user.createMoment(moment);
-            momentData.mid = moment.id;
-            momentData.msg = moment.msg;
-            momentData.uid = moment.uid;
-            momentData.video = moment.video;
-            momentData.type = 2;   
-            res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
-            return;
+            var moment = {
+                msg: req.body.msg,
+                type: 1,
+                userId: user.id,
+                latitude: parseFloat(req.body.latitude),
+                longitude: parseFloat(req.body.longitude),
+                moment_location: req.body.moment_location,
+                cover: 'null',
+                video: req.body.video,
+                thumbs: 'null',
+                pictures: 'null',
+                createdAt: timestamp,
+                updatedAt: timestamp
+            }
+            console.log(moment);
+            MomentModel.create(moment).then(function() {
+                momentData.mid = moment.id;
+                momentData.msg = moment.msg;
+                momentData.uid = moment.userId;
+                momentData.video = moment.video;
+                momentData.type = 0;  
+                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
+                return;
+            })
         }).catch(next);
     }
-    return res.json({status: 1001, msg: MESSAGE.TYPE_ERROR});
 });
 
 router.post('/show_user', function (req, res, next) {
@@ -145,7 +178,6 @@ router.post('/show_user', function (req, res, next) {
         endRow = (endRow > num) ? num : endRow;
 
         var moments = [];
-        var user = {};
         var i = 0;
 
         result.forEach(function (moment) {
@@ -162,23 +194,29 @@ router.post('/show_user', function (req, res, next) {
                 moments.push(momentData);
             }
             i++;
-
-            user.uid = moment.user.id;
-            user.birthday = moment.user.birthday;
-            user.career = moment.user.career;
-            user.face_url = moment.user.face_url;
-            user.follower = moment.user.follower;
-            user.following = moment.user.following;
-            user.location = moment.user.location;
-            user.username = moment.user.username;
-            user.school = moment.user.school;
-            user.sex = moment.user.sex;
-            user.signature = moment.user.signature;
         });
 
-        res.json({status: 0, msg: MESSAGE.SUCCESS, data: moments, user: user});
+        UserModel.findOne({
+            where: {
+                id: req.body.user_id
+            }
+        }).then(function(user) {
+            var userData = {}
+            userData.uid = req.body.user_id;
+            userData.birthday = user.birthday;
+            userData.career = user.career;
+            userData.face_url = user.face_url;
+            userData.follower = user.follower;
+            userData.following = user.following;
+            userData.location = user.location;
+            userData.username = user.username;
+            userData.school = user.school;
+            userData.sex = user.sex;
+            userData.signature = user.signature;
+            res.json({status: 0, msg: MESSAGE.SUCCESS, data: moments, user: userData});
+            return;
+        })
     }).catch(next);
-
     return;
 });
 
@@ -204,7 +242,9 @@ router.post('/add_comment', function (req, res, next) {
         moment: {},
         user: {},
         createdAt: timestamp,
-        updatedAt: timestamp
+        updatedAt: timestamp,
+        reply_uid: 0,
+        reply_username: 'null'
     };
 
     if (req.body.reply_uid !== undefined && req.body.reply_uid !== '') {
@@ -225,7 +265,7 @@ router.post('/add_comment', function (req, res, next) {
 
     UserModel.findOne({
         where: {
-            id: req.body.mid
+            id: req.body.uid
         }
     }).then(function (user) {
         comment.user = user;
@@ -270,11 +310,11 @@ router.post('/update_thumbsup', function (req, res, next) {
     // 判断是否已经点过赞
     ThumbsupModel.findOne({
         where: {
-            userId: req.body.uid,
+            uid: req.body.uid,
             momentId: req.body.mid
         }
     }).then(function (result) {
-        if (result != null) {
+        if (result !== null) {
             // 已经点过赞
             ThumbsupModel.destroy({
                 where: {
@@ -288,13 +328,15 @@ router.post('/update_thumbsup', function (req, res, next) {
         } else {
             // 没有点过赞
             var thumbsup = {
-                userId: req.body.uid,
+                uid: req.body.uid,
                 momentId: req.body.mid,
-                nickname: '',
-                moment: {},
-                user: {},
+                username: '',
                 createdAt: timestamp,
-                updatedAt: timestamp
+                updatedAt: timestamp,
+                face_url: '',
+                signature: '',
+                user: {},
+                moment: {}
             };
 
             UserModel.findOne({
@@ -303,13 +345,14 @@ router.post('/update_thumbsup', function (req, res, next) {
                 }
             }).then(function (user) {
                 thumbsup.username = user.username;
+                thumbsup.face_url = user.face_url;
+                thumbsup.signature = user.signature;
                 thumbsup.user = user;
-
                 MomentModel.findOne({
                     where: {
                         id: req.body.mid
                     }
-                }).then(function (moment) {
+                }).then(function(moment) {
                     thumbsup.moment = moment;
                     ThumbsupModel.create(thumbsup).then(function (result) {
                         var data = {};
@@ -319,7 +362,9 @@ router.post('/update_thumbsup', function (req, res, next) {
                         data.created_at = result.createdAt;
                         res.json({status: 0, data: data});
                     })
-                }).catch(next);
+                })
+                
+                
             }).catch(next);
         }
     }).catch(next);
@@ -343,7 +388,7 @@ router.post('/remove_comment', function (req, res, next) {
     CommentModel.destroy({
         where: {
             id: req.body.comment_id,
-            userId: req.body.uid
+            uid: req.body.uid
         }
     }).then(function (result) {
         res.json({status: 0, msg: MESSAGE.SUCCESS})
@@ -352,6 +397,7 @@ router.post('/remove_comment', function (req, res, next) {
     return;
 });
 
+// WARNING: 即将废弃的接口
 router.post('/remove_thumbsup', function (req, res, next) {
 
     if (req.body.thumbs_up_id == undefined || req.body.thumbs_up_id == ''
@@ -457,7 +503,7 @@ router.post('/show_moment', function (req, res, next) {
     }
 
     MomentModel.findAll({
-        include: [UserModel, CommentModel, ThumbsupModel],
+        include: [UserModel, CommentModel],
     }).then(function(result) {
         var totalPages = 0;
         var pageSize = 10;
@@ -477,13 +523,13 @@ router.post('/show_moment', function (req, res, next) {
         var moments = [];
         var i = 0;
 
-        result.forEach(function(item) {
+        result.forEach(function(d) {
             var moment = {
                 user: {},
                 comment: {},
                 thumbs_up: {}
             };
-            moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.lantitude, d.longitude, d.lantitude);
+            moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.latitude, d.longitude, d.latitude);
             moment.type = d.type;
             moment.moment_location = d.moment_location;
             moment.cover = d.cover;
@@ -492,31 +538,52 @@ router.post('/show_moment', function (req, res, next) {
             moment.created_at = d.createdAt;
             moment.msg = d.msg;
             moment.video = d.video;
-            moment.user.uid = d.user.id;
-            moment.user.username = d.user.username;
-            moment.user.sex = d.user.sex;
-            // moment.user.is_followed = 
-            moment.user.face_url = d.user.face_url;
-            moment.comment.comment_id = d.comment.id;
-            moment.comment.reply_username = d.comment.reply_username;
-            moment.comment.created_at = d.comment.createdAt;
-            moment.comment.face_url = d.comment.face_url;
-            moment.comment.username = d.comment.username;
-            moment.comment.uid = d.comment.userId;
-            moment.comment.reply_uid = d.comment.reply_uid;
-            moment.comment.msg = d.comment.msg;
-            moment.thumbs_up.thumbs_up_id = d.thumbsup.id;
-            moment.thumbs_up.username = d.thumbsup.username;
-            moment.thumbs_up.created_at = d.thumbsup.createdAt;
-            moment.thumbs_up.uid = d.thumbsup.userId;
 
-            if (i >= startRow && i <= endRow) {
-                moments.push(moment);
-            }
-            i++;
+            UserModel.findOne({
+                where: {
+                    id: d.userId
+                }
+            }).then(function(user) {
+                moment.user.uid = user.id;
+                moment.user.username = user.username;
+                moment.user.sex = user.sex;
+                // moment.user.is_followed = 
+                moment.user.face_url = user.face_url;
+                CommentModel.findAll({
+                    where: {
+                        momentId: d.id
+                    }
+                }).then(function(comments) {
+                    comments.forEach(function(comment) {
+                        moment.comment.comment_id = comment.id;
+                        moment.comment.reply_username = comment.reply_username;
+                        moment.comment.created_at = comment.createdAt;
+                        moment.comment.face_url = comment.face_url;
+                        moment.comment.username = comment.username;
+                        moment.comment.uid = comment.uid;
+                        moment.comment.reply_uid = comment.reply_uid;
+                        moment.comment.msg = comment.msg;
+                    })
+                    ThumbsupModel.findAll({
+                        where: {
+                            momentId: d.id
+                        }
+                    }).then(function(thumbsups) {
+                        thumbsups.forEach(function(thumbsup) {
+                            moment.thumbs_up.thumbs_up_id = thumbsup.id;
+                            moment.thumbs_up.username = thumbsup.username;
+                            moment.thumbs_up.created_at = thumbsup.createdAt;
+                            moment.thumbs_up.uid =  thumbsup.userId;
+                        })
+                        if (i >= startRow && i <= endRow) {
+                            moments.push(moment);
+                        }
+                        i++;
+                        res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS})
+                    })
+                })
+            })
         })
-
-        res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS})
     }).catch(next)
 
     return;
@@ -539,26 +606,35 @@ router.post('/collect_moment', function (req, res, next) {
             id: req.body.mid,
         }
     }).then(function (moment) {
-        var user = moment.user;
-        var collection = {
-            first_picture: moment.pictures.split(',')[0],
-            username: moment.user.username,
-            msg: moment.msg,
-            type: moment.type,
-            face_url: moment.user.face_url,
-        }
-        user.createCollection(collection);
-        var data = {
-            first_picture: moment.pictures.split(',')[0],
-            username: moment.user.username,
-            msg: moment.msg,
-            type: moment.type,
-            face_url: moment.user.face_url,
-            create_at: new Date().getTime(),
-            mid: moment.id,
-            uid: user.id
-        }
-        res.json({status: 0, data: data, msg: MESSAGE.SUCCESS})
+        console.log(moment);
+        UserModel.findOne({
+            where: {
+                id: req.body.uid
+            }
+        }).then(function(user) {
+            var collection = {
+                first_picture: moment.pictures.split(',')[0],
+                username: user.username,
+                msg: moment.msg,
+                type: moment.type,
+                face_url: user.face_url,
+                userId: req.body.uid,
+                momentId: req.body.mid
+            }
+            CollectionModel.create(collection).then(function() {
+                var data = {
+                    first_picture: moment.pictures.split(',')[0],
+                    username: user.username,
+                    msg: moment.msg,
+                    type: moment.type,
+                    face_url: user.face_url,
+                    create_at: new Date().getTime(),
+                    mid: moment.id,
+                    uid: user.id
+                }
+                res.json({status: 0, data: data, msg: MESSAGE.SUCCESS})
+            })
+        })       
     }).catch(next)
 
     return;
@@ -585,7 +661,7 @@ router.post('/show_collect_moment', function (req, res, next) {
                 username: d.username,
                 msg: d.msg,
                 type: d.type,
-                face_url: d.user.face_url,
+                face_url: d.face_url,
                 create_at: d.createdAt,
                 mid: d.momentId,
                 uid: d.userId
@@ -604,7 +680,7 @@ router.post('/show_one_moment', function (req, res, next) {
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
         || req.body.uid == undefined || req.body.uid == ''
-        || req.body.lantitude == undefined || req.body.lantitude == ''
+        || req.body.latitude == undefined || req.body.latitude == ''
         || req.body.longitude == undefined || req.body.longitude == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})

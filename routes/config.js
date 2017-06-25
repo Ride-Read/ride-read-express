@@ -13,7 +13,7 @@ const MESSAGE = {
     VIDEO_IS_NULL: '视频为空', // 1003
     MOMENT_IS_NULL: '附近没有阅圈', // 4000
     REQUEST_ERROR: '请求时间间隔过短', // 5000
-    REQUEST_ERROR: '请求时间间隔过短', // 5000
+    FOLLOWER_IS_EXISE: '已经存在该粉丝', // 5001
 }
 
 const KEY = 'airing';
@@ -56,6 +56,7 @@ function getNowFormatDate() {
 }
 
 function LantitudeLongitudeDist(lon1, lat1, lon2, lat2) {  
+    var EARTH_RADIUS = 6378137;
     var radLat1 = lat1 * Math.PI / 180.0;  
     var radLat2 = lat2 * Math.PI / 180.0;  
 

@@ -23,19 +23,15 @@ router.post('/login', function (req, res, next) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    var user = {
-        username: req.body.username,
-        password: sha1(req.body.password)
-    };
     UserModel.findOne({
         where: {
-            username: user.username
+            phonenumber: req.body.phonenumber
         }
     }).then(function (user) {
         if (!user) {
             return res.json({status: 1002, msg: MESSAGE.USER_NOT_EXIST});
         }
-        if (user.password !== sha1(req.body.password)) {
+        if (user.password !== req.body.password) {
             return res.json({status: 1003, msg: MESSAGE.PASSWORD_ERROR});
         }
         var token = md5(user.id + timestamp + KEY);
@@ -72,7 +68,7 @@ router.post('/reset_password', function(req, res, next) {
 
     if (req.body.new_password == undefined || req.body.new_password == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.username == undefined || req.body.username == '') {
+        || req.body.phonenumber == undefined || req.body.phonenumber == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -81,7 +77,7 @@ router.post('/reset_password', function(req, res, next) {
             password: sha1(req.body.new_password)
         },{
             where: {
-                username: req.body.username
+                phonenumber: req.body.phonenumber
             }
         }).then(function (result) {
             if (result == 1) {
@@ -128,10 +124,10 @@ router.post('/register', function (req, res, next) {
         face_url: req.body.face_url,
         username: req.body.username,
         sex: 0,
+        ride_read_id: req.body.ride_read_id,
         follower: 0,
         following: 0,
-        createdAt: timestamp,
-        updatedAt: timestamp
+        signature: 'null'
     };
     UserModel.findOne({
         where: {
@@ -158,7 +154,6 @@ router.post('/register', function (req, res, next) {
                     tags: user.tags,
                     signature: user.signature,
                     created_at: user.createdAt,
-                    updated_at: getNowFormatDate(),
                     latitude: user.latitude,
                     longitude: user.longitude,
                     ride_read_id: user.ride_read_id
@@ -249,17 +244,21 @@ router.post('/followers', function(req, res, next) {
     }
 
     FollowerModel.findAll({
-        tid: req.body.uid
+        where: {
+            tid: req.body.uid
+        }
     }).then(function(followers) {
 
         var ids = [];
 
         followers.forEach(function(result) {
-            ids.push(result.id);
+            ids.push(result.fid);
         })
 
         UserModel.findAll({
-            id: ids
+            where: {
+                id: ids
+            }
         }).then(function(users) {
             var followerData = [];
             users.forEach(function(user) {
@@ -272,9 +271,7 @@ router.post('/followers', function(req, res, next) {
             })
             return res.json({status: 0, data: followerData, msg: MESSAGE.SUCCESS});
         })
-
     })
-
 });
 
 /* followings */
@@ -289,17 +286,21 @@ router.post('/followings', function(req, res, next) {
     }
 
     FollowerModel.findAll({
-        fid: req.body.uid
+        where: {
+            fid: req.body.uid
+        }
     }).then(function(followings) {
 
         var ids = [];
 
         followings.forEach(function(result) {
-            ids.push(result.id);
+            ids.push(result.tid);
         })
 
         UserModel.findAll({
-            id: ids
+            where: {
+                id: ids
+            }
         }).then(function(users) {
             var followingData = [];
             users.forEach(function(user) {
@@ -358,33 +359,64 @@ router.post('/follow', function(req, res, next) {
         tid: req.body.user_id,
         fid: req.body.uid
     };
-
-    UserModel.findAll({
+    FollowerModel.findOne({
         where: {
-            id: [req.body.uid, req.body.user_id]
+            tid: req.body.user_id,
+            fid: req.body.uid
         }
-    }).then(function(users) {
-        if (users[0].id == req.body.uid) {
-            model.f_username = users[0].username;
-            model.f_signature = users[0].signature;
-            model.f_face_url = users[0].face_url;
-            model.t_username = users[1].username;
-            model.t_signature = users[1].signature;
-            model.t_face_url = users[1].face_url;
+    }).then(function(result) {
+        if (!result) {
+            UserModel.findAll({
+                where: {
+                    id: [req.body.uid, req.body.user_id]
+                }
+            }).then(function(users) {
+                var user1 = {}
+                var user2 = {}
+                if (users[0].id == req.body.uid) {
+                    model.f_username = users[0].username;
+                    model.f_signature = users[0].signature;
+                    model.f_face_url = users[0].face_url;
+                    model.t_username = users[1].username;
+                    model.t_signature = users[1].signature;
+                    model.t_face_url = users[1].face_url;
+                    user1 = users[0];
+                    user2 = users[1];
+                    user1.following++;
+                    user2.follower++;
+                } else {
+                    model.f_username = users[1].username;
+                    model.f_signature = users[1].signature;
+                    model.f_face_url = users[1].face_url;
+                    model.t_username = users[0].username;
+                    model.t_signature = users[0].signature;
+                    model.t_face_url = users[0].face_url;
+                    user1 = users[1];
+                    user2 = users[0];
+                    user1.following++;
+                    user2.follower++;
+                }
+                UserModel.update({following: user1.following}, {
+                    where: {
+                        id: req.body.uid
+                    }
+                }).then(function() {
+                    UserModel.update({follower: user2.follower}, {
+                        where: {
+                            id: req.body.user_id
+                        }
+                    }).then(function() {
+                        FollowerModel.create(model).then(function() {
+                            return res.json({status: 0, msg: MESSAGE.SUCCESS});
+                        })
+                    })
+                }) 
+            })
         } else {
-            model.f_username = users[1].username;
-            model.f_signature = users[1].signature;
-            model.f_face_url = users[1].face_url;
-            model.t_username = users[0].username;
-            model.t_signature = users[0].signature;
-            model.t_face_url = users[0].face_url;
+            res.json({status: 5001, msg: MESSAGE.FOLLOWER_IS_EXISE});
+            return;
         }
-        FollowerModel.create(model).then(function() {
-            return res.json({status: 0, msg: MESSAGE.SUCCESS});
-        })
     })
-
-    
 });
 
 /* unfollow */
@@ -399,15 +431,46 @@ router.post('/unfollow', function(req, res, next) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
-
-    FollowerModel.destroy({
+    UserModel.findAll({
         where: {
-            fid: req.body.uid,
-            tid: req.body.user_id
+            id: [req.body.uid, req.body.user_id]
         }
-    }).then(function (){
-        return res.json({status: 0, msg: MESSAGE.SUCCESS});
-    }).catch(next);
+    }).then(function(users) {
+        var user1 = {};
+        var user2 = {};
+        if (users[0].id == req.body.uid) {
+            user1 = users[0];
+            user2 = users[1];
+            user1.following--;
+            user2.follower--;
+        } else {
+            user1 = users[1];
+            user2 = users[0];
+            user1.following--;
+            user2.follower--;
+        }
+        console.log(user1.following)
+        UserModel.update({following: user1.following}, {
+            where: {
+                id: req.body.uid
+            }
+        }).then(function() {
+            UserModel.update({follower: user2.follower}, {
+                where: {
+                    id: req.body.user_id
+                }
+            }).then(function() {
+                FollowerModel.destroy({
+                    where: {
+                        fid: req.body.uid,
+                        tid: req.body.user_id
+                    }
+                }).then(function (){
+                    return res.json({status: 0, msg: MESSAGE.SUCCESS});
+                })
+            })
+        })
+    })
 });
 
 /* show_user_info */
@@ -418,7 +481,8 @@ router.post('/show_user_info', function(req, res, next) {
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
-        || req.body.type == undefined || req.body.type == '') {
+        || req.body.type == undefined || req.body.type == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -432,7 +496,6 @@ router.post('/show_user_info', function(req, res, next) {
             var userData = {
                 uid: user.id,
                 username: user.username,
-                token: token,
                 birthday: user.birthday,
                 career: user.career,
                 face_url: user.face_url,
@@ -465,7 +528,6 @@ router.post('/show_user_info', function(req, res, next) {
             var userData = {
                 uid: user.id,
                 username: user.username,
-                token: token,
                 birthday: user.birthday,
                 career: user.career,
                 face_url: user.face_url,
@@ -517,7 +579,7 @@ router.post('/search_follower_or_following', function(req, res, next) {
 
     FollowerModel.findAll({
         where: {
-            username: {
+            f_username: {
                 '$like': '%' + req.body.shortname + '%', 
             },
             // '$or': [
@@ -530,15 +592,15 @@ router.post('/search_follower_or_following', function(req, res, next) {
         var followingsData = [];
         followings.forEach(function(result) {
             var user = {};
-            user.followed_username = result.username;
-            user.tid = result.id;
-            user.followed_signature = result.signature;
-            user.followed_face_url = result.face_url;
+            user.followed_username = result.t_username;
+            user.tid = result.tid;
+            user.followed_signature = result.t_signature;
+            user.followed_face_url = result.t_face_url;
             followingsData.push(user);
         })
         FollowerModel.findAll({
             where: {
-                username: {
+                t_username: {
                     '$like': '%' + req.body.shortname + '%', 
                 },
                 tid: req.body.uid
@@ -547,10 +609,10 @@ router.post('/search_follower_or_following', function(req, res, next) {
             var followersData = [];
             followers.forEach(function(result) {
                 var user = {};
-                user.follower_username = result.username;
-                user.fid = result.id;
-                user.follower_signature = result.signature;
-                user.follower_face_url = result.face_url;
+                user.follower_username = result.f_username;
+                user.fid = result.fid;
+                user.follower_signature = result.f_signature;
+                user.follower_face_url = result.f_face_url;
                 followersData.push(user);
             })
             res.json({status: 0, timestamp: timestamp, followeds: followingsData, followers: followersData, msg: MESSAGE.SUCCESS});
