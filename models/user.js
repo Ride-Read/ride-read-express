@@ -69,6 +69,18 @@ module.exports = function (sequelize, DataTypes) {
                 'type': DataTypes.STRING(125),
                 'allowNull': true
             },
+            'openid1': {    // wechat
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            }, 
+            'openid2': {    // weibo
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
+            'openid3': {    // qq
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
             'longitude': {
                 'type': DataTypes.DOUBLE,
                 'allowNull': true

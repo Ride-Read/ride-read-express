@@ -653,4 +653,184 @@ router.post('/show_user_info_list', function(req, res, next) {
     }).catch(next);
 });
 
+/* bind_account */
+router.post('/bind_account', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+    
+    if (req.body.openid == undefined || req.body.openid == ''
+        || req.body.phonenumber == undefined || req.body.phonenumber == ''
+        || req.body.type == undefined || req.body.type == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    switch(parseInt(type)){
+        case 1:
+            UserModel.update({
+                openid1: req.body.openid
+            }, {
+                where: {
+                    phonenumber: req.body.phonenumber
+                }
+            }).then(function() {
+                res.json({status: 0, msg: MESSAGE.SUCCESS});
+                return;
+            });
+            break;
+        case 2:
+            UserModel.update({
+                openid2: req.body.openid
+            }, {
+                where: {
+                    phonenumber: req.body.phonenumber
+                }
+            }).then(function() {
+                res.json({status: 0, msg: MESSAGE.SUCCESS});
+                return;
+            });
+            break;
+        case 3:
+            UserModel.update({
+                openid3: req.body.openid
+            }, {
+                where: {
+                    phonenumber: req.body.phonenumber
+                }
+            }).then(function() {
+                res.json({status: 0, msg: MESSAGE.SUCCESS});
+                return;
+            });
+            break;
+        default:
+            return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+            break;
+    }
+});
+
+/* oauth_login */
+router.post('/oauth_login', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+    
+    if (req.body.latitude == undefined || req.body.latitude == ''
+        || req.body.longitude == undefined || req.body.longitude == ''
+        || req.body.type == undefined || req.body.type == ''
+        || req.body.openid == undefined || req.body.openid == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    switch(parseInt(type)){
+        case 1:
+            UserModel.findOne({
+                where: {
+                    openid1: req.body.openid
+                }
+            }).then(function(user) {
+                if (!user) {
+                    return res.json({status: 1002, msg: MESSAGE.USER_NOT_EXIST});
+                }
+                var token = md5(user.id + timestamp + KEY);
+                var userData = {
+                    uid: user.id,
+                    username: user.username,
+                    token: token,
+                    birthday: user.birthday,
+                    career: user.career,
+                    face_url: user.face_url,
+                    follower: user.follower,
+                    following: user.following,
+                    hometown: user.hometown,
+                    location: user.location,
+                    phonenumber: user.phonenumber,
+                    school: user.school,
+                    sex: user.sex,
+                    signature: user.signature,
+                    tags: user.tags,
+                    ride_read_id: user.ride_read_id,
+                    longitude: user.longitude,
+                    latitude: user.latitude,
+                    created_at: user.createdAt,
+                    updated_at: timestamp
+                };
+                res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
+            })
+            break;
+        case 2:
+            UserModel.findOne({
+                where: {
+                    openid2: req.body.openid
+                }
+            }).then(function(user) {
+                if (!user) {
+                    return res.json({status: 1002, msg: MESSAGE.USER_NOT_EXIST});
+                }
+                var token = md5(user.id + timestamp + KEY);
+                var userData = {
+                    uid: user.id,
+                    username: user.username,
+                    token: token,
+                    birthday: user.birthday,
+                    career: user.career,
+                    face_url: user.face_url,
+                    follower: user.follower,
+                    following: user.following,
+                    hometown: user.hometown,
+                    location: user.location,
+                    phonenumber: user.phonenumber,
+                    school: user.school,
+                    sex: user.sex,
+                    signature: user.signature,
+                    tags: user.tags,
+                    ride_read_id: user.ride_read_id,
+                    longitude: user.longitude,
+                    latitude: user.latitude,
+                    created_at: user.createdAt,
+                    updated_at: timestamp
+                };
+                res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
+            })
+            break;
+        case 3:
+            UserModel.findOne({
+                where: {
+                    openid3: req.body.openid
+                }
+            }).then(function(user) {
+                if (!user) {
+                    return res.json({status: 1002, msg: MESSAGE.USER_NOT_EXIST});
+                }
+                var token = md5(user.id + timestamp + KEY);
+                var userData = {
+                    uid: user.id,
+                    username: user.username,
+                    token: token,
+                    birthday: user.birthday,
+                    career: user.career,
+                    face_url: user.face_url,
+                    follower: user.follower,
+                    following: user.following,
+                    hometown: user.hometown,
+                    location: user.location,
+                    phonenumber: user.phonenumber,
+                    school: user.school,
+                    sex: user.sex,
+                    signature: user.signature,
+                    tags: user.tags,
+                    ride_read_id: user.ride_read_id,
+                    longitude: user.longitude,
+                    latitude: user.latitude,
+                    created_at: user.createdAt,
+                    updated_at: timestamp
+                };
+                res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
+            })
+            break;
+        default:
+            return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR});
+            break;
+    }
+});
+
 module.exports = router;
