@@ -58,7 +58,7 @@ module.exports = function (sequelize, DataTypes) {
                 'allowNull': true
             },
             'birthday': {
-                'type': DataTypes.INTEGER,
+                'type': DataTypes.STRING(45),
                 'allowNull': true
             },
             'career': {
