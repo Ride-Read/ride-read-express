@@ -5,6 +5,7 @@ var md5 = require('md5');
 
 var UserModel = require('../models').User;
 var FollowerModel = require('../models').Follower;
+var RemarkModel = require('../models').Remark;
 
 var KEY = require('./config').KEY;
 var MESSAGE = require('./config').MESSAGE;
@@ -520,47 +521,59 @@ router.post('/show_user_info', function(req, res, next) {
     }
 
     if (req.body.type == 2) {
-        UserModel.findOne({
+        var nickname = ''
+        ReMarkModel.findOne({
             where: {
-                id: req.body.user_id
+                uid: req.body.uid,
+                user_id: req.body.user_id
             }
-        }).then(function (user) {
-            var userData = {
-                uid: user.id,
-                username: user.username,
-                birthday: user.birthday,
-                career: user.career,
-                face_url: user.face_url,
-                follower: user.follower,
-                following: user.following,
-                hometown: user.hometown,
-                location: user.location,
-                phonenumber: user.phonenumber,
-                school: user.school,
-                sex: user.sex,
-                signature: user.signature,
-                tags: user.tags,
-                ride_read_id: user.ride_read_id,
-                longitude: user.longitude,
-                latitude: user.latitude,
-                created_at: user.createdAt,
-                updated_at: timestamp,
-                is_followed: 0
-            };
-            FollowerModel.findOne({
-                tid: req.body.uid,
-                fid: req.body.user_id
-            }).then(function(result) {
-                if (!result) {
-                    return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
-                } else {
-                    userData.is_followed = 1
-                    return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
+        }).then(function(result) {
+            if (!result) {
+                nickname = result.nickname
+            }
+            UserModel.findOne({
+                where: {
+                    id: req.body.user_id
                 }
+            }).then(function (user) {
+                var userData = {
+                    uid: user.id,
+                    username: user.username,
+                    birthday: user.birthday,
+                    career: user.career,
+                    face_url: user.face_url,
+                    follower: user.follower,
+                    following: user.following,
+                    hometown: user.hometown,
+                    location: user.location,
+                    phonenumber: user.phonenumber,
+                    school: user.school,
+                    sex: user.sex,
+                    signature: user.signature,
+                    tags: user.tags,
+                    ride_read_id: user.ride_read_id,
+                    longitude: user.longitude,
+                    latitude: user.latitude,
+                    created_at: user.createdAt,
+                    updated_at: timestamp,
+                    is_followed: 0,
+                    remark: nickname
+                };
+                FollowerModel.findOne({
+                    tid: req.body.uid,
+                    fid: req.body.user_id
+                }).then(function(result) {
+                    if (!result) {
+                        return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
+                    } else {
+                        userData.is_followed = 1
+                        return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
+                    }
+                })
             })
 
-            
         })
+        
     }
 });
 
@@ -831,6 +844,52 @@ router.post('/oauth_login', function(req, res, next) {
             return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR});
             break;
     }
+});
+
+/* remark */
+router.post('/remark', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.user_id == undefined || req.body.user_id == ''
+        || req.body.nickname == undefined || req.body.nickname == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    var data = {
+        uid: req.body.uid,
+        user_id: req.body.user_id,
+        nickname: req.body.nickname
+    }
+
+    RemarkModel.findOne({
+        where: {
+            uid: req.body.uid,
+            user_id: req.body.user_id,
+        }
+    }).then(function(result) {
+        if (!result) {
+            RemarkModel.create(data).then(function() {
+                return res.json({status: 0, msg: MESSAGE.SUCCESS});
+            })
+        } else {
+            RemarkModel.update({
+                nickname: req.body.nickname
+            }, {
+                where: {
+                    uid: req.body.uid,
+                    user_id: req.body.user_id,
+                }
+            }).then(function() {
+                return res.json({status: 0, msg: MESSAGE.SUCCESS});
+            })
+        }
+        return res.json({status: 0, msg: MESSAGE.SUCCESS});
+    })
 });
 
 module.exports = router;

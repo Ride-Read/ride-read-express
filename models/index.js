@@ -8,6 +8,7 @@ var Comment = sequelize.import('./comment');
 var Collection = sequelize.import('./collection');
 var SmsCode = sequelize.import('./sms_code');
 var Version = sequelize.import('./version.js');
+var Remark = sequelize.import('./remark.js');
 
 
 User.hasMany(Moment, {foreignKey: 'userId', targetKey: 'userId'});
@@ -34,4 +35,6 @@ exports.Comment = Comment;
 exports.SmsCode = SmsCode;
 exports.Collection = Collection;
 exports.Version = Version;
+exports.Remark = Remark;
+
 

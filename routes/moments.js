@@ -20,13 +20,13 @@ router.post('/post_moment', function (req, res, next) {
         || req.body.uid == undefined || req.body.uid == ''
         || req.body.msg == undefined || req.body.msg == ''
         || req.body.longitude == undefined || req.body.longitude == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.moment_location == undefined || req.body.moment_location == '') {
+        || req.body.latitude == undefined || req.body.latitude == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
     var momentData = {};
+    var moment_location = req.body.moment_location || '';
 
     // 纯文本
     if (req.body.type == 0) {
@@ -43,7 +43,7 @@ router.post('/post_moment', function (req, res, next) {
                 userId: user.id,
                 latitude: parseFloat(req.body.latitude),
                 longitude: parseFloat(req.body.longitude),
-                moment_location: req.body.moment_location,
+                moment_location: moment_location,
                 cover: 'null',
                 video: 'null',
                 thumbs: 'null',
