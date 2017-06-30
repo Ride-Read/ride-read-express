@@ -691,7 +691,61 @@ router.post('/show_one_moment', function (req, res, next) {
             id: req.body.mid,
         }
     }).then(function (result) {
-        res.json({status: 0, data: result, msg: MESSAGE.SUCCESS})
+        var moment = {
+            user: {},
+            comment: {},
+            thumbs_up: {}
+        };
+        moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.latitude, result.longitude, result.latitude);
+        moment.type = result.type;
+        moment.moment_location = result.moment_location;
+        moment.cover = result.cover;
+        moment.mid = result.id;
+        moment.pictures = result.pictures;
+        moment.created_at = result.createdAt;
+        moment.msg = result.msg;
+        moment.video = result.video;
+
+        UserModel.findOne({
+            where: {
+                id: result.userId
+            }
+        }).then(function(user) {
+            moment.user.uid = user.id;
+            moment.user.username = user.username;
+            moment.user.sex = user.sex;
+            // moment.user.is_followed = 
+            moment.user.face_url = user.face_url;
+            CommentModel.findAll({
+                where: {
+                    momentId: result.id
+                }
+            }).then(function(comments) {
+                comments.forEach(function(comment) {
+                    moment.comment.comment_id = comment.id;
+                    moment.comment.reply_username = comment.reply_username;
+                    moment.comment.created_at = comment.createdAt;
+                    moment.comment.face_url = comment.face_url;
+                    moment.comment.username = comment.username;
+                    moment.comment.uid = comment.uid;
+                    moment.comment.reply_uid = comment.reply_uid;
+                    moment.comment.msg = comment.msg;
+                })
+                ThumbsupModel.findAll({
+                    where: {
+                        momentId: result.id
+                    }
+                }).then(function(thumbsups) {
+                    thumbsups.forEach(function(thumbsup) {
+                        moment.thumbs_up.thumbs_up_id = thumbsup.id;
+                        moment.thumbs_up.username = thumbsup.username;
+                        moment.thumbs_up.created_at = thumbsup.createdAt;
+                        moment.thumbs_up.uid =  thumbsup.userId;
+                    })
+                    res.json({status: 0, data: moment, msg: MESSAGE.SUCCESS})
+                })
+            })
+        })
     }).catch(next)
 
     return;
