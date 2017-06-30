@@ -111,7 +111,7 @@ router.post('/yun_pian_code', function (req, res, next) {
         req.end();
     })
 
-    return res.json({status: 0, msg: MESSAGE.SUCCESS});
+    return res.json({status: 0, msg: MESSAGE.SUCCESS, data: {rand_code: code}});
 });
 
 // WARNING: 即将废弃的接口

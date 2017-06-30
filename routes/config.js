@@ -87,7 +87,7 @@ function LantitudeLongitudeDist(lon1, lat1, lon2, lat2) {
     //余弦定理求夹角  
     var theta = Math.acos((EARTH_RADIUS * EARTH_RADIUS + EARTH_RADIUS * EARTH_RADIUS - d * d) / (2 * EARTH_RADIUS * EARTH_RADIUS));  
     var dist = theta * EARTH_RADIUS;  
-    return dist;  
+    return dist + 'km';  
 }
 
 var log = function(api) {

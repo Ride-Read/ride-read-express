@@ -577,16 +577,18 @@ router.post('/show_moment', function (req, res, next) {
                         })
                         if (i >= startRow && i <= endRow) {
                             moments.push(moment);
+                            i++;
                         }
-                        i++;
-                        res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS})
-                    })
-                })
-            })
+                    }).catch(next);
+                }).catch(next);
+            }).catch(next);
         })
-    }).catch(next)
-
-    return;
+        setTimeout(function() {
+            res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
+            return;
+        }, 1000)
+    }).catch(next);
+    
 });
 
 router.post('/collect_moment', function (req, res, next) {
@@ -746,8 +748,7 @@ router.post('/show_one_moment', function (req, res, next) {
                 })
             })
         })
-    }).catch(next)
-
+    }).catch(next);
     return;
 });
 

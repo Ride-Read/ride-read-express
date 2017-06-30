@@ -678,7 +678,7 @@ router.post('/bind_account', function(req, res, next) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    switch(parseInt(type)){
+    switch(parseInt(req.body.type)){
         case 1:
             UserModel.update({
                 openid1: req.body.openid
@@ -734,7 +734,7 @@ router.post('/oauth_login', function(req, res, next) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    switch(parseInt(type)){
+    switch(parseInt(req.body.type)){
         case 1:
             UserModel.findOne({
                 where: {
