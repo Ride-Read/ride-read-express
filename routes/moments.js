@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var UserModel = require('../models').User;
 var MomentModel = require('../models').Moment;
+var PointModel = require('../models').Point;
 var CommentModel = require('../models').Comment;
 var ThumbsupModel = require('../models').Thumbsup;
 var CollectionModel = require('../models').Collection;
@@ -707,6 +708,29 @@ router.post('/show_one_moment', function (req, res, next) {
         });
     }).catch(next);
     return;
+});
+
+router.post('/post_point', function (req, res, next) {
+
+    if (req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == ''
+        || req.body.latitude == undefined || req.body.latitude == ''
+        || req.body.longitude == undefined || req.body.longitude == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    var point = {
+        userId: req.body.uid,
+        latitude: req.body.latitude,
+        longitude: req.body.longitude
+    };
+
+    PointModel.create(point).then(function() {
+        res.json({status: 0, msg: MESSAGE.SUCCESS});
+        return;
+    });
 });
 
 module.exports = router;
