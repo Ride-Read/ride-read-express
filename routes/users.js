@@ -734,7 +734,7 @@ router.post('/oauth_login', function(req, res, next) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    switch(parseInt(req.body.type)){
+    switch(parseInt(type)){
         case 1:
             UserModel.findOne({
                 where: {
@@ -889,6 +889,40 @@ router.post('/remark', function(req, res, next) {
             })
         }
         return res.json({status: 0, msg: MESSAGE.SUCCESS});
+    })
+});
+
+/* interest_user */
+router.post('/interest_user', function(req, res, next) {
+
+    var timestamp = new Date().getTime();
+
+    if (req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.ride_read_id == undefined || req.body.ride_read_id == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    // 推荐条件待定
+    UserModel.findAll({
+        where: {
+            $or: [
+                {ride_read_id: req.body.ride_read_id}
+            ]
+        }
+    }).then(function(result) {
+        var users = [];
+        result.forEach(function(data) {
+            var user = {};
+            user.uid = data.id;
+            user.face_url = data.face_url;
+            user.username = data.username;
+            users.push(user);
+        })
+        res.json({status: 0, msg: MESSAGE.SUCCESS, data: users});
+        return;
     })
 });
 
