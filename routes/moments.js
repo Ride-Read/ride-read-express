@@ -733,4 +733,23 @@ router.post('/post_point', function (req, res, next) {
     });
 });
 
+router.post('/get_point', function (req, res, next) {
+
+    if (req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    PointModel.findAll({
+        where: {
+            userId: req.body.uid
+        }
+    }).then(function(results) {
+        res.json({status: 0, data: results, msg: MESSAGE.SUCCESS});
+        return;
+    });
+});
+
 module.exports = router;
