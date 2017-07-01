@@ -5,6 +5,7 @@ var MomentModel = require('../models').Moment;
 var CommentModel = require('../models').Comment;
 var ThumbsupModel = require('../models').Thumbsup;
 var CollectionModel = require('../models').Collection;
+var FollowerModel = require('../models').Follower;
 
 var KEY = require('./config').KEY;
 var MESSAGE = require('./config').MESSAGE;
@@ -503,8 +504,9 @@ router.post('/show_moment', function (req, res, next) {
     }
 
     MomentModel.findAll({
-        include: [UserModel, CommentModel],
+        include: [UserModel, CommentModel, ThumbsupModel],
     }).then(function(result) {
+        console.log(result)
         var totalPages = 0;
         var pageSize = 10;
         var num = result.length;
@@ -525,9 +527,7 @@ router.post('/show_moment', function (req, res, next) {
 
         result.forEach(function(d) {
             var moment = {
-                user: {},
-                comment: {},
-                thumbs_up: {}
+                user: {}
             };
             moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.latitude, d.longitude, d.latitude);
             moment.type = d.type;
@@ -538,6 +538,8 @@ router.post('/show_moment', function (req, res, next) {
             moment.created_at = d.createdAt;
             moment.msg = d.msg;
             moment.video = d.video;
+            moment.comment = d.t_comments;
+            moment.thumbs_up = d.t_thumbs_ups;
 
             UserModel.findOne({
                 where: {
@@ -549,38 +551,10 @@ router.post('/show_moment', function (req, res, next) {
                 moment.user.sex = user.sex;
                 // moment.user.is_followed = 
                 moment.user.face_url = user.face_url;
-                CommentModel.findAll({
-                    where: {
-                        momentId: d.id
-                    }
-                }).then(function(comments) {
-                    comments.forEach(function(comment) {
-                        moment.comment.comment_id = comment.id;
-                        moment.comment.reply_username = comment.reply_username;
-                        moment.comment.created_at = comment.createdAt;
-                        moment.comment.face_url = comment.face_url;
-                        moment.comment.username = comment.username;
-                        moment.comment.uid = comment.uid;
-                        moment.comment.reply_uid = comment.reply_uid;
-                        moment.comment.msg = comment.msg;
-                    })
-                    ThumbsupModel.findAll({
-                        where: {
-                            momentId: d.id
-                        }
-                    }).then(function(thumbsups) {
-                        thumbsups.forEach(function(thumbsup) {
-                            moment.thumbs_up.thumbs_up_id = thumbsup.id;
-                            moment.thumbs_up.username = thumbsup.username;
-                            moment.thumbs_up.created_at = thumbsup.createdAt;
-                            moment.thumbs_up.uid =  thumbsup.userId;
-                        })
-                        if (i >= startRow && i <= endRow) {
-                            moments.push(moment);
-                            i++;
-                        }
-                    }).catch(next);
-                }).catch(next);
+                if (i >= startRow && i <= endRow) {
+                    moments.push(moment);
+                    i++;
+                }
             }).catch(next);
         })
         setTimeout(function() {
@@ -689,14 +663,13 @@ router.post('/show_one_moment', function (req, res, next) {
     }
 
     MomentModel.findOne({
+        include: [UserModel, CommentModel, ThumbsupModel],
         where: {
             id: req.body.mid,
         }
     }).then(function (result) {
         var moment = {
             user: {},
-            comment: {},
-            thumbs_up: {}
         };
         moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.latitude, result.longitude, result.latitude);
         moment.type = result.type;
@@ -707,6 +680,8 @@ router.post('/show_one_moment', function (req, res, next) {
         moment.created_at = result.createdAt;
         moment.msg = result.msg;
         moment.video = result.video;
+        moment.comment = result.t_comments;
+        moment.thumbs_up = result.t_thumbs_ups;
 
         UserModel.findOne({
             where: {
@@ -716,38 +691,20 @@ router.post('/show_one_moment', function (req, res, next) {
             moment.user.uid = user.id;
             moment.user.username = user.username;
             moment.user.sex = user.sex;
-            // moment.user.is_followed = 
+            moment.user.is_followed = 0;
             moment.user.face_url = user.face_url;
-            CommentModel.findAll({
+            FollowerModel.findOne({
                 where: {
-                    momentId: result.id
+                    fid: req.body.uid,
+                    tid: user.id
                 }
-            }).then(function(comments) {
-                comments.forEach(function(comment) {
-                    moment.comment.comment_id = comment.id;
-                    moment.comment.reply_username = comment.reply_username;
-                    moment.comment.created_at = comment.createdAt;
-                    moment.comment.face_url = comment.face_url;
-                    moment.comment.username = comment.username;
-                    moment.comment.uid = comment.uid;
-                    moment.comment.reply_uid = comment.reply_uid;
-                    moment.comment.msg = comment.msg;
-                })
-                ThumbsupModel.findAll({
-                    where: {
-                        momentId: result.id
-                    }
-                }).then(function(thumbsups) {
-                    thumbsups.forEach(function(thumbsup) {
-                        moment.thumbs_up.thumbs_up_id = thumbsup.id;
-                        moment.thumbs_up.username = thumbsup.username;
-                        moment.thumbs_up.created_at = thumbsup.createdAt;
-                        moment.thumbs_up.uid =  thumbsup.userId;
-                    })
-                    res.json({status: 0, data: moment, msg: MESSAGE.SUCCESS})
-                })
+            }).then(function(result) {
+                if (result) {
+                    moment.user.is_followed = 1;
+                }
+                res.json({status: 0, data: moment, msg: MESSAGE.SUCCESS})
             })
-        })
+        });
     }).catch(next);
     return;
 });

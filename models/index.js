@@ -17,11 +17,11 @@ User.hasMany(Comment, {foreignKey: 'userId', targetKey: 'userId'});
 User.hasMany(Collection, {foreignKey: 'userId', targetKey: 'userId'});
 
 Moment.hasMany(Comment, {foreignKey: 'momentId', targetKey: 'momentId'});
-// Moment.hasMany(Thumbsup, {foreignKey: 'momentId', targetKey: 'momentId'});
+Moment.hasMany(Thumbsup, {foreignKey: 'momentId', targetKey: 'momentId'});
 Moment.hasMany(Collection, {foreignKey: 'momentId', targetKey: 'momentId'});
 
 Moment.belongsTo(User);
-// Thumbsup.belongsTo(Moment);
+Thumbsup.belongsTo(Moment);
 Comment.belongsTo(Moment);
 Collection.belongsTo(User);
 
