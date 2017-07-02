@@ -12,6 +12,9 @@ var KEY = require('./config').KEY;
 var MESSAGE = require('./config').MESSAGE;
 var LantitudeLongitudeDist = require('./config').LantitudeLongitudeDist;
 
+// var JPush = require('jpush-sdk');
+// var client = JPush.buildClient('9133d17d9a1e9406202dcd5e', '662a7ffad97c79da35b1187d');
+
 router.post('/post_moment', function (req, res, next) {
 
     var timestamp = new Date().getTime();
@@ -54,7 +57,7 @@ router.post('/post_moment', function (req, res, next) {
                 updatedAt: timestamp
             }
             console.log(moment);
-            MomentModel.create(moment).then(function() {
+            MomentModel.create(moment).then(function(moment) {
                 momentData.mid = moment.id;
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
@@ -92,13 +95,13 @@ router.post('/post_moment', function (req, res, next) {
                 updatedAt: timestamp
             }
             console.log(moment);
-            MomentModel.create(moment).then(function() {
+            MomentModel.create(moment).then(function(moment) {
                 momentData.mid = moment.id;
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
                 momentData.pictures = moment.pictures;
                 momentData.type = 0;  
-                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
+                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
                 return;
             })
         }).catch(next);
@@ -131,13 +134,13 @@ router.post('/post_moment', function (req, res, next) {
                 updatedAt: timestamp
             }
             console.log(moment);
-            MomentModel.create(moment).then(function() {
+            MomentModel.create(moment).then(function(moment) {
                 momentData.mid = moment.id;
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
                 momentData.video = moment.video;
                 momentData.type = 0;  
-                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
+                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
                 return;
             })
         }).catch(next);
@@ -246,7 +249,7 @@ router.post('/add_comment', function (req, res, next) {
         createdAt: timestamp,
         updatedAt: timestamp,
         reply_uid: 0,
-        reply_username: 'null'
+        reply_username: ''
     };
 
     if (req.body.reply_uid !== undefined && req.body.reply_uid !== '') {
@@ -288,13 +291,14 @@ router.post('/add_comment', function (req, res, next) {
                 data.username = result.username;
                 data.uid = result.uid;
                 data.created_at = result.createdAt;
+                data.reply_uid = result.reply_uid;
+                data.reply_username = result.reply_username;
                 res.json({status: 0, data: data, msg: MESSAGE.SUCCESS});
             }).catch(next);
         }).catch(next);
     }).catch(next);
     
     return;
-
 });
 
 router.post('/update_thumbsup', function (req, res, next) {
@@ -365,16 +369,10 @@ router.post('/update_thumbsup', function (req, res, next) {
                         res.json({status: 0, data: data});
                     })
                 })
-                
-                
             }).catch(next);
         }
     }).catch(next);
-
-    
-    
     return;
-
 });
 
 router.post('/remove_comment', function (req, res, next) {
@@ -476,7 +474,7 @@ router.post('/show_thumbsup', function (req, res, next) {
         var thumbsups = [];
         result.forEach(function(d) {
             var thumbsup = {}
-            thumbsup.uid = d.userId;
+            thumbsup.uid = d.uid;
             // 是否必须需要 ？ thumbsup.is_followed = 
             thumbsup.signature = d.signature;
             thumbsup.username = d.username;

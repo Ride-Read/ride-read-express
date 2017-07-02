@@ -53,12 +53,22 @@ router.post('/login', function (req, res, next) {
             signature: user.signature,
             tags: user.tags,
             ride_read_id: user.ride_read_id,
-            longitude: user.longitude,
-            latitude: user.latitude,
+            longitude: req.body.longitude,
+            latitude: req.body.latitude,
             created_at: user.createdAt,
             updated_at: timestamp
         };
-        res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
+        UserModel.update({
+            longitude: req.body.longitude,
+            latitude: req.body.latitude,
+        },{
+            where: {
+                phonenumber: req.body.phonenumber
+            }
+        }).then(function() {
+            res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
+            return;    
+        })  
     });
 });
 
@@ -162,7 +172,7 @@ router.post('/register', function (req, res, next) {
                 return res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
             });
         } else {
-            return res.json({status: 1005, msg: MESSAGE.USER_ALREADY_EXIST})
+            return res.json({status: 1005, msg: MESSAGE.USER_ALREADY_EXIST});
         }
     });
 });
@@ -734,7 +744,7 @@ router.post('/oauth_login', function(req, res, next) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    switch(parseInt(type)){
+    switch(parseInt(req.body.type)){
         case 1:
             UserModel.findOne({
                 where: {

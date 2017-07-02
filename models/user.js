@@ -46,7 +46,7 @@ module.exports = function (sequelize, DataTypes) {
                 'allowNull': true
             },
             'face_url': {
-                'type': DataTypes.STRING(45),
+                'type': DataTypes.STRING(145),
                 'allowNull': true
             },
             'signature': {
