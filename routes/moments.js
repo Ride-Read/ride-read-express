@@ -11,9 +11,7 @@ var FollowerModel = require('../models').Follower;
 var KEY = require('./config').KEY;
 var MESSAGE = require('./config').MESSAGE;
 var LantitudeLongitudeDist = require('./config').LantitudeLongitudeDist;
-
-// var JPush = require('jpush-sdk');
-// var client = JPush.buildClient('9133d17d9a1e9406202dcd5e', '662a7ffad97c79da35b1187d');
+var JiGuangPush = require('./config').JiGuangPush;
 
 router.post('/post_moment', function (req, res, next) {
 
@@ -233,7 +231,8 @@ router.post('/add_comment', function (req, res, next) {
         || req.body.mid == undefined || req.body.mid == ''
         || req.body.token == undefined || req.body.token == ''
         || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == '') {
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -293,6 +292,9 @@ router.post('/add_comment', function (req, res, next) {
                 data.created_at = result.createdAt;
                 data.reply_uid = result.reply_uid;
                 data.reply_username = result.reply_username;
+
+                JiGuangPush(req.body.user_id);
+
                 res.json({status: 0, data: data, msg: MESSAGE.SUCCESS});
             }).catch(next);
         }).catch(next);
@@ -308,7 +310,8 @@ router.post('/update_thumbsup', function (req, res, next) {
     if (req.body.mid == undefined || req.body.mid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
         || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == '') {
+        || req.body.uid == undefined || req.body.uid == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -366,6 +369,9 @@ router.post('/update_thumbsup', function (req, res, next) {
                         data.username = result.username;
                         data.uid = result.userId;
                         data.created_at = result.createdAt;
+
+                        JiGuangPush(req.body.user_id);
+
                         res.json({status: 0, data: data});
                     })
                 })

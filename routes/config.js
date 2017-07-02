@@ -25,6 +25,9 @@ const BUCKET = 'rideread';
 const ADMIN_USER = 'airing';
 const ADMIN_PASSWORD = '1123581321';
 
+var JPush = require('jpush-sdk');
+var client = JPush.buildClient('9133d17d9a1e9406202dcd5e', '662a7ffad97c79da35b1187d');
+
 function getNowFormatDate() {
     var date = new Date();
     var seperator1 = "-";
@@ -94,6 +97,31 @@ var log = function(api) {
 	console.log('POST: ' + api);
     console.log('TIME: ' + getNowFormatDate());
 }
+
+function JiGuangPush(user_id) {
+    client.push().setPlatform('ios', 'android')
+      .setAudience(JPush.alias(user_id.toString()))
+      .setNotification('骑阅通知', JPush.ios('ios alert'), JPush.android('android alert', null, 1))
+      .setMessage('您有一条未读动态！')
+      .setOptions(null, 60)
+      .send(function (err, res) {
+        if (err) {
+          if (err instanceof JPush.APIConnectionError) {
+            console.log(err.message)
+            // Response Timeout means your request to the server may have already received,
+            // please check whether or not to push
+            console.log(err.isResponseTimeout)
+          } else if (err instanceof JPush.APIRequestError) {
+            console.log(err.message)
+          }
+        } else {
+          console.log('Sendno: ' + res.sendno)
+          console.log('Msg_id: ' + res.msg_id)
+        }
+      })
+}
+
+exports.JiGuangPush = JiGuangPush;
 exports.MESSAGE = MESSAGE;
 exports.KEY = KEY;
 exports.SQL_PASSWORD = SQL_PASSWORD;
