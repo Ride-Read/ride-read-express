@@ -7,6 +7,7 @@ var CommentModel = require('../models').Comment;
 var ThumbsupModel = require('../models').Thumbsup;
 var CollectionModel = require('../models').Collection;
 var FollowerModel = require('../models').Follower;
+var UnreadModel = require('../models').Unread;
 
 var KEY = require('./config').KEY;
 var MESSAGE = require('./config').MESSAGE;
@@ -47,12 +48,12 @@ router.post('/post_moment', function (req, res, next) {
                 latitude: parseFloat(req.body.latitude),
                 longitude: parseFloat(req.body.longitude),
                 moment_location: moment_location,
-                cover: 'null',
-                video: 'null',
-                thumbs: 'null',
-                pictures: 'null',
-                createdAt: timestamp,
-                updatedAt: timestamp
+                cover: '',
+                video: '',
+                thumbs: '',
+                pictures: '',
+                hot: timestamp,
+                createdAt: timestamp
             }
             console.log(moment);
             MomentModel.create(moment).then(function(moment) {
@@ -85,12 +86,12 @@ router.post('/post_moment', function (req, res, next) {
                 latitude: parseFloat(req.body.latitude),
                 longitude: parseFloat(req.body.longitude),
                 moment_location: req.body.moment_location,
-                cover: 'null',
-                video: 'null',
-                thumbs: 'null',
+                cover: '',
+                video: '',
+                thumbs: '',
                 pictures: req.body.pictures,
-                createdAt: timestamp,
-                updatedAt: timestamp
+                hot: timestamp,
+                createdAt: timestamp
             }
             console.log(moment);
             MomentModel.create(moment).then(function(moment) {
@@ -105,8 +106,8 @@ router.post('/post_moment', function (req, res, next) {
         }).catch(next);
     }
 
-    // 视频
-    if (req.body.type == 2) {
+    // 视频 or 语音
+    if (req.body.type == 2 || req.body.type == 3) {
         if (req.body.video == undefined || req.body.video == '') {
             return res.json({status: 1003, msg: MESSAGE.VIDEO_IS_NULL});
         }
@@ -119,17 +120,17 @@ router.post('/post_moment', function (req, res, next) {
         }).then(function (user) {
             var moment = {
                 msg: req.body.msg,
-                type: 1,
+                type: req.body.type,
                 userId: user.id,
                 latitude: parseFloat(req.body.latitude),
                 longitude: parseFloat(req.body.longitude),
                 moment_location: req.body.moment_location,
-                cover: 'null',
+                cover: '',
                 video: req.body.video,
-                thumbs: 'null',
-                pictures: 'null',
-                createdAt: timestamp,
-                updatedAt: timestamp
+                thumbs: '',
+                pictures: '',
+                hot: timestamp,
+                createdAt: timestamp
             }
             console.log(moment);
             MomentModel.create(moment).then(function(moment) {
@@ -293,9 +294,34 @@ router.post('/add_comment', function (req, res, next) {
                 data.reply_uid = result.reply_uid;
                 data.reply_username = result.reply_username;
 
-                JiGuangPush(req.body.user_id);
+                MomentModel.findOne({
+                    where: {
+                        id: req.body.mid
+                    }
+                }).then(function(result) {
+                    var hot = result.hot + 36000000; // 10小时
+                    MomentModel.update({
+                        hot: hot
+                    }, {
+                        where: {
+                            id: req.body.mid
+                        }
+                    }).then(function() {
+                        var unread = {
+                            uid: req.body.user_id,
+                            mid: req.body.mid,
+                            createdAt: timestamp
+                        }
 
-                res.json({status: 0, data: data, msg: MESSAGE.SUCCESS});
+                        UnreadModel.create(unread).then(function() {
+                            JiGuangPush(req.body.user_id);
+
+                            res.json({status: 0, data: data, msg: MESSAGE.SUCCESS});
+                        })
+                    })
+                })
+
+                
             }).catch(next);
         }).catch(next);
     }).catch(next);
@@ -363,17 +389,33 @@ router.post('/update_thumbsup', function (req, res, next) {
                     }
                 }).then(function(moment) {
                     thumbsup.moment = moment;
-                    ThumbsupModel.create(thumbsup).then(function (result) {
-                        var data = {};
-                        data.thumbs_up_id = result.id;
-                        data.username = result.username;
-                        data.uid = result.userId;
-                        data.created_at = result.createdAt;
+                    var hot = moment.hot + 36000000; // 10小时
+                    MomentModel.update({
+                        hot: hot
+                    }, {
+                        where: {
+                            id: req.body.mid
+                        }
+                    }).then(function() {
+                        ThumbsupModel.create(thumbsup).then(function (result) {
+                            var data = {};
+                            data.thumbs_up_id = result.id;
+                            data.username = result.username;
+                            data.uid = result.userId;
+                            data.created_at = result.createdAt;
+                            var unread = {
+                                uid: req.body.user_id,
+                                mid: req.body.mid,
+                                createdAt: timestamp
+                            }
+                            UnreadModel.create(unread).then(function() {
+                                JiGuangPush(req.body.user_id);
 
-                        JiGuangPush(req.body.user_id);
-
-                        res.json({status: 0, data: data});
+                                res.json({status: 0, data: data});
+                            })  
+                        })
                     })
+                    
                 })
             }).catch(next);
         }
@@ -510,6 +552,7 @@ router.post('/show_moment', function (req, res, next) {
 
     MomentModel.findAll({
         include: [UserModel, CommentModel, ThumbsupModel],
+        order: 'hot DESC'
     }).then(function(result) {
         console.log(result)
         var totalPages = 0;
@@ -753,6 +796,42 @@ router.post('/get_point', function (req, res, next) {
     }).then(function(results) {
         res.json({status: 0, data: results, msg: MESSAGE.SUCCESS});
         return;
+    });
+});
+
+router.post('/get_unread', function (req, res, next) {
+
+    if (req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    UnreadModel.findAll({
+        where: {
+            uid: req.body.uid
+        }
+    }).then(function(results) {
+        var ids = [];
+        results.forEach(function(result) {
+            ids.push(result.id);
+        })
+        MomentModel.findAll({
+            where: {
+                id: ids
+            }
+        }).then(function(moments) {
+            UnreadModel.destroy({
+                where: {
+                    uid: req.body.uid
+                }
+            }).then(function() {
+                res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
+                return;
+            })    
+        })
+        
     });
 });
 

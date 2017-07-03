@@ -31,7 +31,7 @@ module.exports = function (sequelize, DataTypes) {
                 'allowNull': false
             },
             'createdAt': {
-                'type': DataTypes.INTEGER,
+                'type': DataTypes.DOUBLE,
                 'allowNull': true
             },
             'updatedAt': {

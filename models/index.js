@@ -10,6 +10,7 @@ var SmsCode = sequelize.import('./sms_code');
 var Version = sequelize.import('./version.js');
 var Remark = sequelize.import('./remark.js');
 var Point = sequelize.import('./point.js');
+var Unread = sequelize.import('./unread.js');
 
 
 User.hasMany(Moment, {foreignKey: 'userId', targetKey: 'userId'});
@@ -40,5 +41,7 @@ exports.Collection = Collection;
 exports.Version = Version;
 exports.Remark = Remark;
 exports.Point = Point;
+exports.Unread = Unread;
+
 
 

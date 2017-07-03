@@ -46,11 +46,15 @@ module.exports = function (sequelize, DataTypes) {
                 'allowNull': true
             },
             'createdAt': {
-                'type': DataTypes.INTEGER,
+                'type': DataTypes.DOUBLE,
                 'allowNull': true
             },
             'updatedAt': {
                 'type': DataTypes.INTEGER,
+                'allowNull': true
+            },
+            'hot': {
+                'type': DataTypes.DOUBLE,
                 'allowNull': true
             }
         },
