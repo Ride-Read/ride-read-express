@@ -11,6 +11,7 @@ var Version = sequelize.import('./version.js');
 var Remark = sequelize.import('./remark.js');
 var Point = sequelize.import('./point.js');
 var Unread = sequelize.import('./unread.js');
+var LastMap = sequelize.import('./last_map');
 
 
 User.hasMany(Moment, {foreignKey: 'userId', targetKey: 'userId'});
@@ -42,6 +43,7 @@ exports.Version = Version;
 exports.Remark = Remark;
 exports.Point = Point;
 exports.Unread = Unread;
+exports.LastMap = LastMap;
 
 
 

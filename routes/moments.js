@@ -99,7 +99,7 @@ router.post('/post_moment', function (req, res, next) {
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
                 momentData.pictures = moment.pictures;
-                momentData.type = 0;  
+                momentData.type = 1;  
                 res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
                 return;
             })
@@ -118,6 +118,7 @@ router.post('/post_moment', function (req, res, next) {
                 id: req.body.uid
             }
         }).then(function (user) {
+            
             var moment = {
                 msg: req.body.msg,
                 type: req.body.type,
@@ -132,13 +133,16 @@ router.post('/post_moment', function (req, res, next) {
                 hot: timestamp,
                 createdAt: timestamp
             }
-            console.log(moment);
+            if(req.body.cover !== '' && req.body.cover !== undefined) {
+                moment.cover = req.body.cover
+            }
             MomentModel.create(moment).then(function(moment) {
                 momentData.mid = moment.id;
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
                 momentData.video = moment.video;
-                momentData.type = 0;  
+                momentData.type = moment.type;  
+                momentData.cover = moment.cover; 
                 res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
                 return;
             })

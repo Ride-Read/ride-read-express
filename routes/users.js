@@ -250,13 +250,14 @@ router.post('/followers', function(req, res, next) {
 
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == '') {
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
     FollowerModel.findAll({
         where: {
-            tid: req.body.uid
+            tid: req.body.user_id
         }
     }).then(function(followers) {
 
@@ -292,13 +293,14 @@ router.post('/followings', function(req, res, next) {
 
     if (req.body.uid == undefined || req.body.uid == ''
         || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == '') {
+        || req.body.token == undefined || req.body.token == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
     FollowerModel.findAll({
         where: {
-            fid: req.body.uid
+            fid: req.body.user_id
         }
     }).then(function(followings) {
 
@@ -532,13 +534,13 @@ router.post('/show_user_info', function(req, res, next) {
 
     if (req.body.type == 2) {
         var nickname = ''
-        ReMarkModel.findOne({
+        RemarkModel.findOne({
             where: {
                 uid: req.body.uid,
                 user_id: req.body.user_id
             }
         }).then(function(result) {
-            if (!result) {
+            if (result) {
                 nickname = result.nickname
             }
             UserModel.findOne({

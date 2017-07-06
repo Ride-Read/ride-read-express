@@ -81,14 +81,15 @@ router.post('/show_map_number', function (req, res, next) {
 router.post('/show_other_user_map', function (req, res, next) {
 	if (req.body.token == undefined || req.body.token == ''
         || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == '') {
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.user_id == undefined || req.body.user_id == '') {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
     MomentModel.findAll({
         where: {
-            userId: req.body.uid
+            userId: req.body.user_id
         }
     }).then(function(result) {
         if (result[0] == undefined) {
@@ -96,6 +97,38 @@ router.post('/show_other_user_map', function (req, res, next) {
             return;
         }
         return res.json({status: 0, data: result, msg: MESSAGE.SUCCESS})
+    })
+});
+
+router.post('/show_map', function (req, res, next) {
+    if (req.body.token == undefined || req.body.token == ''
+        || req.body.uid == undefined || req.body.uid == ''
+        || req.body.timestamp == undefined || req.body.timestamp == ''
+        || req.body.last == undefined || req.body.last == '') {
+
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    MomentModel.findAll({
+        where: {
+            createdAt: {
+                $gte: last
+            }
+        } 
+    }).then(function(result) {
+        if (result[0] == undefined) {
+            res.json({status: 4000, msg: MESSAGE.MOMENT_IS_NULL});
+            return;
+        }
+        var map = [];
+        result.forEach(function(data) {
+            var moment = {};
+            moment.mid = data.id;
+            moment.createdAt = data.createdAt;
+            moment.pictures = data.pictures;
+            map.push(moment);
+        })
+        return res.json({status: 0, data: map, msg: MESSAGE.SUCCESS})
     })
 });
 
