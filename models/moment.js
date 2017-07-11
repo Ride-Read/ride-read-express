@@ -25,6 +25,10 @@ module.exports = function (sequelize, DataTypes) {
             	'type': DataTypes.STRING(125),
                 'allowNull': true
             },
+            'voice_time': {
+                'type': DataTypes.STRING(125),
+                'allowNull': true
+            },
             'thumbs': {
             	'type': DataTypes.TEXT,
                 'allowNull': true

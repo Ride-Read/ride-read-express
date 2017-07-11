@@ -99,7 +99,7 @@ router.post('/post_moment', function (req, res, next) {
 
     // 视频 or 语音
     if (req.body.type == 2 || req.body.type == 3) {
-        if (req.body.video == null) {
+        if (req.body.video == null || req.body.voice_time == null) {
             return res.json({status: 1003, msg: MESSAGE.VIDEO_IS_NULL});
         }
 
@@ -119,6 +119,7 @@ router.post('/post_moment', function (req, res, next) {
                 moment_location: req.body.moment_location,
                 cover: '',
                 video: req.body.video,
+                voice_time: req.body.voice_time,
                 thumbs: '',
                 pictures: '',
                 hot: timestamp,
@@ -132,6 +133,7 @@ router.post('/post_moment', function (req, res, next) {
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
                 momentData.video = moment.video;
+                momentData.voice_time = moment.voice_time;
                 momentData.type = moment.type;  
                 momentData.cover = moment.cover;
                 return res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
@@ -152,7 +154,6 @@ router.post('/show_user', function (req, res, next) {
             userId: req.body.user_id
         }
     }).then(function (result) {
-        
         var totalPages = 0;
         var pageSize = 10;
         var num = result.length;
@@ -171,41 +172,40 @@ router.post('/show_user', function (req, res, next) {
         var moments = [];
         var i = 0;
 
-        result.forEach(function (moment) {
-            var momentData = {};
-            momentData.mid = moment.id;
-            momentData.msg = moment.msg;
-            momentData.pictures = moment.pictures;
-            momentData.video = moment.video;
-            momentData.created_at = moment.createdAt;
-            momentData.comments = moment.comments;
-            momentData.thumbs_up = moment.thumbsups;
+        result.forEach(function(d) {
+            var moment = {
+                user: {}
+            };
+            moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.latitude, d.longitude, d.latitude);
+            moment.type = d.type;
+            moment.moment_location = d.moment_location;
+            moment.cover = d.cover;
+            moment.mid = d.id;
+            moment.pictures = d.pictures;
+            moment.created_at = d.createdAt;
+            moment.msg = d.msg;
+            moment.video = d.video;
+            moment.comment = d.t_comments;
+            moment.thumbs_up = d.t_thumbs_ups;
 
-            if (i >= startRow && i <= endRow) {
-                moments.push(momentData);
-            }
-            i++;
+            UserModel.findOne({
+                where: {
+                    id: d.userId
+                }
+            }).then(function(user) {
+                moment.user.uid = user.id;
+                moment.user.username = user.username;
+                moment.user.sex = user.sex;
+                moment.user.face_url = user.face_url;
+                if (i >= startRow && i <= endRow) {
+                    moments.push(moment);
+                    i++;
+                }
+            }).catch(next);
         });
-
-        UserModel.findOne({
-            where: {
-                id: req.body.user_id
-            }
-        }).then(function(user) {
-            var userData = {};
-            userData.uid = req.body.user_id;
-            userData.birthday = user.birthday;
-            userData.career = user.career;
-            userData.face_url = user.face_url;
-            userData.follower = user.follower;
-            userData.following = user.following;
-            userData.location = user.location;
-            userData.username = user.username;
-            userData.school = user.school;
-            userData.sex = user.sex;
-            userData.signature = user.signature;
-            return res.json({status: 0, msg: MESSAGE.SUCCESS, data: moments, user: userData});
-        })
+        setTimeout(function() {
+            return res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
+        }, 1000)
     }).catch(next);
 });
 
