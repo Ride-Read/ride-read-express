@@ -28,10 +28,7 @@ function uptoken(bucket, key) {
 router.post('/qiniu_token', function (req, res, next) {
 
     var timestamp = new Date().getTime();
-    if (req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.filename == undefined || req.body.filename == '') {
+    if (req.body.token == null || req.body.uid == null || req.body.token == null || req.body.filename == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -47,8 +44,7 @@ router.post('/qiniu_token', function (req, res, next) {
 router.post('/yun_pian_code', function (req, res, next) {
 
     var timestamp = new Date().getTime();
-    if (req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.phonenumber == undefined || req.body.phonenumber == '') {
+    if (req.body.timestamp == null || req.body.phonenumber == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -118,10 +114,7 @@ router.post('/yun_pian_code', function (req, res, next) {
 router.post('/verify_version_number', function (req, res, next) {
 
     var timestamp = new Date().getTime();
-    if (req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.version_type == undefined || req.body.version_type == ''
-        || req.body.timestamp == undefined || req.body.timestamp == '') {
+    if (req.body.token == null || req.body.uid == null || req.body.version_type == null || req.body.timestamp == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -134,7 +127,7 @@ router.post('/verify_version_number', function (req, res, next) {
             create_at: result.createdAt,
             version: result.version,
             version_type: result.version_type
-        }
+        };
         return res.json({status: 0, timestamp: timestamp, data: data, msg: MESSAGE.SUCCESS});
     })
 });

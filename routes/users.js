@@ -17,10 +17,7 @@ router.post('/login', function (req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.phonenumber == undefined || req.body.phonenumber == ''
-        || req.body.password == undefined || req.body.password == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.longitude == undefined || req.body.longitude == '') {
+    if (req.body.phonenumber == null || req.body.password == null || req.body.latitude == null || req.body.longitude == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -66,8 +63,7 @@ router.post('/login', function (req, res, next) {
                 phonenumber: req.body.phonenumber
             }
         }).then(function() {
-            res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
-            return;    
+            return res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
         })  
     });
 });
@@ -77,9 +73,7 @@ router.post('/reset_password', function(req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.new_password == undefined || req.body.new_password == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.phonenumber == undefined || req.body.phonenumber == '') {
+    if (req.body.new_password == null || req.body.timestamp == null || req.body.phonenumber == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -106,9 +100,7 @@ router.post('/login_out', function(req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -121,11 +113,7 @@ router.post('/register', function (req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.face_url == undefined || req.body.face_url == ''
-        || req.body.password == undefined || req.body.password == ''
-        || req.body.username == undefined || req.body.username == ''
-        || req.body.ride_read_id == undefined || req.body.nickname == ''
-        || req.body.phonenumber == undefined || req.body.phonenumber == '') {
+    if (req.body.face_url == null || req.body.password == null || req.body.username == null || req.body.ride_read_id == null || req.body.phonenumber == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -182,22 +170,7 @@ router.post('/update', function(req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.face_url == undefined || req.body.face_url == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.username == undefined || req.body.username == ''
-        || req.body.phonenumber == undefined || req.body.phonenumber == ''
-        || req.body.birthday == undefined || req.body.birthday == ''
-        || req.body.hometown == undefined || req.body.hometown == ''
-        || req.body.location == undefined || req.body.location == ''
-        || req.body.school == undefined || req.body.school == ''
-        || req.body.sex == undefined || req.body.sex == ''
-        || req.body.signature == undefined || req.body.signature == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.career == undefined || req.body.career == ''
-        || req.body.tags == undefined || req.body.tags == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.longitude == undefined || req.body.longitude == '') {
+    if (req.body.face_url == null || req.body.uid == null || req.body.username == null || req.body.phonenumber == null || req.body.birthday == null || req.body.hometown == null || req.body.location == null || req.body.school == null || req.body.sex == null || req.body.signature == null || req.body.timestamp == null || req.body.token == null || req.body.career == null || req.body.tags == null || req.body.latitude == null || req.body.longitude == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -248,10 +221,7 @@ router.post('/followers', function(req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.user_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -265,7 +235,7 @@ router.post('/followers', function(req, res, next) {
 
         followers.forEach(function(result) {
             ids.push(result.fid);
-        })
+        });
 
         UserModel.findAll({
             where: {
@@ -280,7 +250,7 @@ router.post('/followers', function(req, res, next) {
                 follower.follower_face_url = user.face_url;
                 follower.follower_username = user.username;
                 followerData.push(follower);
-            })
+            });
             return res.json({status: 0, data: followerData, msg: MESSAGE.SUCCESS});
         })
     })
@@ -289,12 +259,7 @@ router.post('/followers', function(req, res, next) {
 /* followings */
 router.post('/followings', function(req, res, next) {
 
-    var timestamp = new Date().getTime();
-
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.user_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -308,7 +273,7 @@ router.post('/followings', function(req, res, next) {
 
         followings.forEach(function(result) {
             ids.push(result.tid);
-        })
+        });
 
         UserModel.findAll({
             where: {
@@ -323,20 +288,16 @@ router.post('/followings', function(req, res, next) {
                 following.followed_face_url = user.face_url;
                 following.followed_username = user.username;
                 followingData.push(following);
-            })
+            });
             return res.json({status: 0, data: followingData, msg: MESSAGE.SUCCESS});
         })
-
     })
 });
 
 /* verify */
 router.post('/verify', function(req, res, next) {
 
-    var timestamp = new Date().getTime();
-
-    if (req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.ride_read_id == undefined || req.body.ride_read_id == '') {
+    if (req.body.timestamp == null || req.body.ride_read_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -351,8 +312,6 @@ router.post('/verify', function(req, res, next) {
             res.json({status: 0, msg: MESSAGE.SUCCESS});
         }
     }).catch(next);
-
-    return;
 });
 
 /* follow */
@@ -360,11 +319,7 @@ router.post('/follow', function(req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
-
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.user_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -384,8 +339,8 @@ router.post('/follow', function(req, res, next) {
                     id: [req.body.uid, req.body.user_id]
                 }
             }).then(function(users) {
-                var user1 = {}
-                var user2 = {}
+                var user1 = {};
+                var user2 = {};
                 if (users[0].id == req.body.uid) {
                     model.f_username = users[0].username;
                     model.f_signature = users[0].signature;
@@ -426,8 +381,7 @@ router.post('/follow', function(req, res, next) {
                 }) 
             })
         } else {
-            res.json({status: 5001, msg: MESSAGE.FOLLOWER_IS_EXISE});
-            return;
+            return res.json({status: 5001, msg: MESSAGE.FOLLOWER_IS_EXISE});
         }
     })
 });
@@ -435,12 +389,7 @@ router.post('/follow', function(req, res, next) {
 /* unfollow */
 router.post('/unfollow', function(req, res, next) {
 
-    var timestamp = new Date().getTime();
-    
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.user_id == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -462,7 +411,7 @@ router.post('/unfollow', function(req, res, next) {
             user1.following--;
             user2.follower--;
         }
-        console.log(user1.following)
+        console.log(user1.following);
         UserModel.update({following: user1.following}, {
             where: {
                 id: req.body.uid
@@ -491,11 +440,7 @@ router.post('/show_user_info', function(req, res, next) {
 
     var timestamp = new Date().getTime();
     
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.type == undefined || req.body.type == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.type == null || req.body.user_id == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -533,7 +478,7 @@ router.post('/show_user_info', function(req, res, next) {
     }
 
     if (req.body.type == 2) {
-        var nickname = ''
+        var nickname = '';
         RemarkModel.findOne({
             where: {
                 uid: req.body.uid,
@@ -594,10 +539,7 @@ router.post('/search_follower_or_following', function(req, res, next) {
 
     var timestamp = new Date().getTime();
     
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.shortname == undefined || req.body.shortname == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.shortname == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -622,7 +564,7 @@ router.post('/search_follower_or_following', function(req, res, next) {
             user.followed_signature = result.t_signature;
             user.followed_face_url = result.t_face_url;
             followingsData.push(user);
-        })
+        });
         FollowerModel.findAll({
             where: {
                 t_username: {
@@ -639,9 +581,8 @@ router.post('/search_follower_or_following', function(req, res, next) {
                 user.follower_signature = result.f_signature;
                 user.follower_face_url = result.f_face_url;
                 followersData.push(user);
-            })
-            res.json({status: 0, timestamp: timestamp, followeds: followingsData, followers: followersData, msg: MESSAGE.SUCCESS});
-            return;
+            });
+            return res.json({status: 0, timestamp: timestamp, followeds: followingsData, followers: followersData, msg: MESSAGE.SUCCESS});
         })
     }).catch(next);
 });
@@ -651,10 +592,7 @@ router.post('/show_user_info_list', function(req, res, next) {
 
     var timestamp = new Date().getTime();
     
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.user_ids == undefined || req.body.user_ids == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.user_ids == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -672,9 +610,8 @@ router.post('/show_user_info_list', function(req, res, next) {
             user.username = item.username;
             user.face_url = item.face_url;
             users.push(user);
-        }) 
-        res.json({status: 0, msg: MESSAGE.SUCCESS, data: users})
-        return;
+        });
+        return res.json({status: 0, msg: MESSAGE.SUCCESS, data: users});
     }).catch(next);
 });
 
@@ -683,10 +620,7 @@ router.post('/bind_account', function(req, res, next) {
 
     var timestamp = new Date().getTime();
     
-    if (req.body.openid == undefined || req.body.openid == ''
-        || req.body.phonenumber == undefined || req.body.phonenumber == ''
-        || req.body.type == undefined || req.body.type == '') {
-
+    if (req.body.openid == null || req.body.phonenumber == null || req.body.type == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -738,10 +672,7 @@ router.post('/oauth_login', function(req, res, next) {
 
     var timestamp = new Date().getTime();
     
-    if (req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.longitude == undefined || req.body.longitude == ''
-        || req.body.type == undefined || req.body.type == ''
-        || req.body.openid == undefined || req.body.openid == '') {
+    if (req.body.latitude == null || req.body.longitude == null || req.body.type == null || req.body.openid == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -780,7 +711,7 @@ router.post('/oauth_login', function(req, res, next) {
                     updated_at: timestamp
                 };
                 res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
-            })
+            });
             break;
         case 2:
             UserModel.findOne({
@@ -815,7 +746,7 @@ router.post('/oauth_login', function(req, res, next) {
                     updated_at: timestamp
                 };
                 res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
-            })
+            });
             break;
         case 3:
             UserModel.findOne({
@@ -850,7 +781,7 @@ router.post('/oauth_login', function(req, res, next) {
                     updated_at: timestamp
                 };
                 res.json({status: 0, timestamp: timestamp, data: userData, msg: MESSAGE.SUCCESS});
-            })
+            });
             break;
         default:
             return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR});
@@ -861,13 +792,7 @@ router.post('/oauth_login', function(req, res, next) {
 /* remark */
 router.post('/remark', function(req, res, next) {
 
-    var timestamp = new Date().getTime();
-
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.user_id == undefined || req.body.user_id == ''
-        || req.body.nickname == undefined || req.body.nickname == '') {
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.user_id == null || req.body.nickname == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -876,12 +801,12 @@ router.post('/remark', function(req, res, next) {
         uid: req.body.uid,
         user_id: req.body.user_id,
         nickname: req.body.nickname
-    }
+    };
 
     RemarkModel.findOne({
         where: {
             uid: req.body.uid,
-            user_id: req.body.user_id,
+            user_id: req.body.user_id
         }
     }).then(function(result) {
         if (!result) {
@@ -894,7 +819,7 @@ router.post('/remark', function(req, res, next) {
             }, {
                 where: {
                     uid: req.body.uid,
-                    user_id: req.body.user_id,
+                    user_id: req.body.user_id
                 }
             }).then(function() {
                 return res.json({status: 0, msg: MESSAGE.SUCCESS});
@@ -909,11 +834,7 @@ router.post('/interest_user', function(req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.ride_read_id == undefined || req.body.ride_read_id == '') {
-
+    if (req.body.uid == null || req.body.timestamp == null || req.body.token == null || req.body.ride_read_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -932,9 +853,8 @@ router.post('/interest_user', function(req, res, next) {
             user.face_url = data.face_url;
             user.username = data.username;
             users.push(user);
-        })
-        res.json({status: 0, msg: MESSAGE.SUCCESS, data: users});
-        return;
+        });
+        return res.json({status: 0, msg: MESSAGE.SUCCESS, data: users});
     })
 });
 

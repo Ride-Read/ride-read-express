@@ -14,7 +14,7 @@ const MESSAGE = {
     MOMENT_IS_NULL: '附近没有阅圈', // 4000
     REQUEST_ERROR: '请求时间间隔过短', // 5000
     FOLLOWER_IS_EXISE: '已经存在该粉丝', // 5001
-}
+};
 
 const KEY = 'airing';
 const SQL_PASSWORD = '';
@@ -96,7 +96,7 @@ function LantitudeLongitudeDist(lon1, lat1, lon2, lat2) {
 var log = function(api) {
 	console.log('POST: ' + api);
     console.log('TIME: ' + getNowFormatDate());
-}
+};
 
 function JiGuangPush(user_id) {
     client.push().setPlatform('ios', 'android')
@@ -107,7 +107,7 @@ function JiGuangPush(user_id) {
       .send(function (err, res) {
         if (err) {
           if (err instanceof JPush.APIConnectionError) {
-            console.log(err.message)
+            console.log(err.message);
             // Response Timeout means your request to the server may have already received,
             // please check whether or not to push
             console.log(err.isResponseTimeout)
@@ -115,7 +115,7 @@ function JiGuangPush(user_id) {
             console.log(err.message)
           }
         } else {
-          console.log('Sendno: ' + res.sendno)
+          console.log('Sendno: ' + res.sendno);
           console.log('Msg_id: ' + res.msg_id)
         }
       })

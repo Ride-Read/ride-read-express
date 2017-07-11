@@ -18,14 +18,7 @@ router.post('/post_moment', function (req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.type == undefined || req.body.type == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.msg == undefined || req.body.msg == ''
-        || req.body.longitude == undefined || req.body.longitude == ''
-        || req.body.latitude == undefined || req.body.latitude == '') {
-
+    if (req.body.type == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.msg == null || req.body.longitude == null || req.body.latitude == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -54,22 +47,21 @@ router.post('/post_moment', function (req, res, next) {
                 pictures: '',
                 hot: timestamp,
                 createdAt: timestamp
-            }
+            };
             console.log(moment);
             MomentModel.create(moment).then(function(moment) {
                 momentData.mid = moment.id;
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
-                momentData.type = 0;  
-                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
-                return;
+                momentData.type = 0;
+                return res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData})
             })
         }).catch(next);
     }
 
     // 图片
     if (req.body.type == 1) {
-        if (req.body.pictures == undefined || req.body.pictures == '') {
+        if (req.body.pictures == null) {
             return res.json({status: 1002, msg: MESSAGE.PICTURE_IS_NULL});
         }
 
@@ -92,23 +84,22 @@ router.post('/post_moment', function (req, res, next) {
                 pictures: req.body.pictures,
                 hot: timestamp,
                 createdAt: timestamp
-            }
+            };
             console.log(moment);
             MomentModel.create(moment).then(function(moment) {
                 momentData.mid = moment.id;
                 momentData.msg = moment.msg;
                 momentData.uid = moment.userId;
                 momentData.pictures = moment.pictures;
-                momentData.type = 1;  
-                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
-                return;
+                momentData.type = 1;
+                return res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
             })
         }).catch(next);
     }
 
     // 视频 or 语音
     if (req.body.type == 2 || req.body.type == 3) {
-        if (req.body.video == undefined || req.body.video == '') {
+        if (req.body.video == null) {
             return res.json({status: 1003, msg: MESSAGE.VIDEO_IS_NULL});
         }
 
@@ -132,7 +123,7 @@ router.post('/post_moment', function (req, res, next) {
                 pictures: '',
                 hot: timestamp,
                 createdAt: timestamp
-            }
+            };
             if(req.body.cover !== '' && req.body.cover !== undefined) {
                 moment.cover = req.body.cover
             }
@@ -142,9 +133,8 @@ router.post('/post_moment', function (req, res, next) {
                 momentData.uid = moment.userId;
                 momentData.video = moment.video;
                 momentData.type = moment.type;  
-                momentData.cover = moment.cover; 
-                res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
-                return;
+                momentData.cover = moment.cover;
+                return res.json({status: 0, msg: MESSAGE.SUCCESS, data: momentData});
             })
         }).catch(next);
     }
@@ -152,14 +142,7 @@ router.post('/post_moment', function (req, res, next) {
 
 router.post('/show_user', function (req, res, next) {
 
-    if (req.body.pages == undefined || req.body.pages == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.longitude == undefined || req.body.longitude == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
-
+    if (req.body.pages == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.longitude == null || req.body.latitude == null || req.body.user_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -209,7 +192,7 @@ router.post('/show_user', function (req, res, next) {
                 id: req.body.user_id
             }
         }).then(function(user) {
-            var userData = {}
+            var userData = {};
             userData.uid = req.body.user_id;
             userData.birthday = user.birthday;
             userData.career = user.career;
@@ -221,24 +204,16 @@ router.post('/show_user', function (req, res, next) {
             userData.school = user.school;
             userData.sex = user.sex;
             userData.signature = user.signature;
-            res.json({status: 0, msg: MESSAGE.SUCCESS, data: moments, user: userData});
-            return;
+            return res.json({status: 0, msg: MESSAGE.SUCCESS, data: moments, user: userData});
         })
     }).catch(next);
-    return;
 });
 
 router.post('/add_comment', function (req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.msg == undefined || req.body.msg == ''
-        || req.body.mid == undefined || req.body.mid == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
-
+    if (req.body.msg == null || req.body.mid == null || req.body.token == null || req.body.uid == null || req.body.timestamp == null || req.body.user_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -315,7 +290,7 @@ router.post('/add_comment', function (req, res, next) {
                             uid: req.body.user_id,
                             mid: req.body.mid,
                             createdAt: timestamp
-                        }
+                        };
 
                         UnreadModel.create(unread).then(function() {
                             JiGuangPush(req.body.user_id);
@@ -324,25 +299,16 @@ router.post('/add_comment', function (req, res, next) {
                         })
                     })
                 })
-
-                
             }).catch(next);
         }).catch(next);
     }).catch(next);
-    
-    return;
 });
 
 router.post('/update_thumbsup', function (req, res, next) {
 
     var timestamp = new Date().getTime();
 
-    if (req.body.mid == undefined || req.body.mid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
-
+    if (req.body.mid == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.user_id == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -361,8 +327,7 @@ router.post('/update_thumbsup', function (req, res, next) {
                     momentId: req.body.mid
                 }
             }).then(function() {
-                res.json({status: 0, msg: MESSAGE.SUCCESS});
-                return;
+                return res.json({status: 0, msg: MESSAGE.SUCCESS});
             })
         } else {
             // 没有点过赞
@@ -411,10 +376,9 @@ router.post('/update_thumbsup', function (req, res, next) {
                                 uid: req.body.user_id,
                                 mid: req.body.mid,
                                 createdAt: timestamp
-                            }
+                            };
                             UnreadModel.create(unread).then(function() {
                                 JiGuangPush(req.body.user_id);
-
                                 res.json({status: 0, data: data});
                             })  
                         })
@@ -424,16 +388,11 @@ router.post('/update_thumbsup', function (req, res, next) {
             }).catch(next);
         }
     }).catch(next);
-    return;
 });
 
 router.post('/remove_comment', function (req, res, next) {
 
-    if (req.body.comment_id == undefined || req.body.comment_id == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == '') {
-
+    if (req.body.comment_id == null || req.body.token == null || req.body.uid == null || req.body.timestamp == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -442,21 +401,15 @@ router.post('/remove_comment', function (req, res, next) {
             id: req.body.comment_id,
             uid: req.body.uid
         }
-    }).then(function (result) {
+    }).then(function () {
         res.json({status: 0, msg: MESSAGE.SUCCESS})
-    }).catch(next)
-
-    return;
+    }).catch(next);
 });
 
 // WARNING: 即将废弃的接口
 router.post('/remove_thumbsup', function (req, res, next) {
 
-    if (req.body.thumbs_up_id == undefined || req.body.thumbs_up_id == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == '') {
-
+    if (req.body.thumbs_up_id == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -467,18 +420,12 @@ router.post('/remove_thumbsup', function (req, res, next) {
         }
     }).then(function (result) {
         res.json({status: 0, msg: MESSAGE.SUCCESS})
-    }).catch(next)
-
-    return;
+    }).catch(next);
 });
 
 router.post('/remove_moment', function (req, res, next) {
 
-    if (req.body.mid == undefined || req.body.mid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == '') {
-
+    if (req.body.mid == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -489,19 +436,12 @@ router.post('/remove_moment', function (req, res, next) {
         }
     }).then(function (result) {
         res.json({status: 0, msg: MESSAGE.SUCCESS})
-    }).catch(next)
-
-    return;
+    }).catch(next);
 });
 
 router.post('/show_thumbsup', function (req, res, next) {
 
-    if (req.body.mid == undefined || req.body.mid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.pages == undefined || req.body.pages == '') {
-
+    if (req.body.mid == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.pages == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -536,21 +476,13 @@ router.post('/show_thumbsup', function (req, res, next) {
             }
             i++;
         });
-        res.json({status: 0, msg: MESSAGE.SUCCESS, data: thumbsups})
-        return;
+        return res.json({status: 0, msg: MESSAGE.SUCCESS, data: thumbsups})
     }).catch(next);
 });
 
 router.post('/show_moment', function (req, res, next) {
 
-    if (req.body.pages == undefined || req.body.pages == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.longitude == undefined || req.body.longitude == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.type == undefined || req.body.type == '') {
-
+    if (req.body.pages == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.longitude == null || req.body.latitude == null || req.body.type == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -558,7 +490,7 @@ router.post('/show_moment', function (req, res, next) {
         include: [UserModel, CommentModel, ThumbsupModel],
         order: 'hot DESC'
     }).then(function(result) {
-        console.log(result)
+        console.log(result);
         var totalPages = 0;
         var pageSize = 10;
         var num = result.length;
@@ -601,37 +533,29 @@ router.post('/show_moment', function (req, res, next) {
                 moment.user.uid = user.id;
                 moment.user.username = user.username;
                 moment.user.sex = user.sex;
-                // moment.user.is_followed = 
                 moment.user.face_url = user.face_url;
                 if (i >= startRow && i <= endRow) {
                     moments.push(moment);
                     i++;
                 }
             }).catch(next);
-        })
+        });
         setTimeout(function() {
-            res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
-            return;
+            return res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
         }, 1000)
     }).catch(next);
-    
 });
 
 router.post('/collect_moment', function (req, res, next) {
 
-    if (req.body.mid == undefined || req.body.mid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.type == undefined || req.body.type == '') {
-
+    if (req.body.mid == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.type == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
     MomentModel.findOne({
         include: [UserModel],
         where: {
-            id: req.body.mid,
+            id: req.body.mid
         }
     }).then(function (moment) {
         console.log(moment);
@@ -648,7 +572,7 @@ router.post('/collect_moment', function (req, res, next) {
                 face_url: user.face_url,
                 userId: req.body.uid,
                 momentId: req.body.mid
-            }
+            };
             CollectionModel.create(collection).then(function() {
                 var data = {
                     first_picture: moment.pictures.split(',')[0],
@@ -659,27 +583,22 @@ router.post('/collect_moment', function (req, res, next) {
                     create_at: new Date().getTime(),
                     mid: moment.id,
                     uid: user.id
-                }
+                };
                 res.json({status: 0, data: data, msg: MESSAGE.SUCCESS})
             })
         })       
-    }).catch(next)
-
-    return;
+    }).catch(next);
 });
 
 router.post('/show_collect_moment', function (req, res, next) {
 
-    if (req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == '') {
-
+    if (req.body.timestamp == null || req.body.token == null || req.body.uid == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
     CollectionModel.findAll({
         where: {
-            userId: req.body.uid,
+            userId: req.body.uid
         }
     }).then(function (result) {
         var collections = [];
@@ -693,23 +612,16 @@ router.post('/show_collect_moment', function (req, res, next) {
                 create_at: d.createdAt,
                 mid: d.momentId,
                 uid: d.userId
-            }
+            };
             collections.push(data);
-        })
+        });
         res.json({status: 0, data: collections, msg: MESSAGE.SUCCESS})
-    }).catch(next)
-
-    return;
+    }).catch(next);
 });
 
 router.post('/show_one_moment', function (req, res, next) {
 
-    if (req.body.mid == undefined || req.body.mid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.longitude == undefined || req.body.longitude == '') {
+    if (req.body.mid == null || req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.latitude == null || req.body.longitude == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -717,11 +629,11 @@ router.post('/show_one_moment', function (req, res, next) {
     MomentModel.findOne({
         include: [UserModel, CommentModel, ThumbsupModel],
         where: {
-            id: req.body.mid,
+            id: req.body.mid
         }
     }).then(function (result) {
         var moment = {
-            user: {},
+            user: {}
         };
         moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.latitude, result.longitude, result.latitude);
         moment.type = result.type;
@@ -758,17 +670,11 @@ router.post('/show_one_moment', function (req, res, next) {
             })
         });
     }).catch(next);
-    return;
 });
 
 router.post('/post_point', function (req, res, next) {
 
-    if (req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.longitude == undefined || req.body.longitude == '') {
-
+    if (req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.latitude == null || req.body.longitude == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -779,17 +685,13 @@ router.post('/post_point', function (req, res, next) {
     };
 
     PointModel.create(point).then(function() {
-        res.json({status: 0, msg: MESSAGE.SUCCESS});
-        return;
+        return res.json({status: 0, msg: MESSAGE.SUCCESS});
     });
 });
 
 router.post('/get_point', function (req, res, next) {
 
-    if (req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == '') {
-
+    if (req.body.timestamp == null || req.body.token == null || req.body.uid == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -798,17 +700,13 @@ router.post('/get_point', function (req, res, next) {
             userId: req.body.uid
         }
     }).then(function(results) {
-        res.json({status: 0, data: results, msg: MESSAGE.SUCCESS});
-        return;
+        return res.json({status: 0, data: results, msg: MESSAGE.SUCCESS});
     });
 });
 
 router.post('/get_unread', function (req, res, next) {
 
-    if (req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == '') {
-
+    if (req.body.timestamp == null || req.body.token == null || req.body.uid == null) {
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
@@ -820,7 +718,7 @@ router.post('/get_unread', function (req, res, next) {
         var ids = [];
         results.forEach(function(result) {
             ids.push(result.id);
-        })
+        });
         MomentModel.findAll({
             where: {
                 id: ids
@@ -831,11 +729,9 @@ router.post('/get_unread', function (req, res, next) {
                     uid: req.body.uid
                 }
             }).then(function() {
-                res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
-                return;
+                return res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
             })    
         })
-        
     });
 });
 

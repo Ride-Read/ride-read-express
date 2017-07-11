@@ -12,11 +12,7 @@ var LantitudeLongitudeDist = require('./config').LantitudeLongitudeDist;
 
 
 router.post('/show_near_map', function (req, res, next) {
-	if (req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.longitude == undefined || req.body.longitude == '') {
+    if (req.body.token == null || req.body.uid == null || req.body.timestamp == null || req.body.latitude == null || req.body.longitude == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -32,8 +28,8 @@ router.post('/show_near_map', function (req, res, next) {
                 '$lte': parseFloat(req.body.longitude) + 3,
             }
         }
-    }).then(function(result) {
-        if (result[0] == undefined) {
+    }).then(function (result) {
+        if (result[0] === undefined) {
             res.json({status: 4000, msg: MESSAGE.MOMENT_IS_NULL});
             return;
         }
@@ -43,9 +39,7 @@ router.post('/show_near_map', function (req, res, next) {
 });
 
 router.post('/show_user_map', function (req, res, next) {
-	if (req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == '') {
+    if (req.body.token == null || req.body.uid == null || req.body.timestamp == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -54,8 +48,8 @@ router.post('/show_user_map', function (req, res, next) {
         where: {
             userId: req.body.uid
         }
-    }).then(function(result) {
-        if (result[0] == undefined) {
+    }).then(function (result) {
+        if (result[0] === undefined) {
             res.json({status: 4000, msg: MESSAGE.MOMENT_IS_NULL});
             return;
         }
@@ -65,24 +59,16 @@ router.post('/show_user_map', function (req, res, next) {
 
 // WARNING: 即将废弃的接口
 router.post('/show_map_number', function (req, res, next) {
-	if (req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.latitude == undefined || req.body.latitude == ''
-        || req.body.longitude == undefined || req.body.longitude == ''
-        || req.body.scaling_ratio == undefined || req.body.scaling_ratio == '') {
+    if (req.body.token == null || req.body.uid == null || req.body.timestamp == null || req.body.latitude == null || req.body.longitude == null || req.body.scaling_ratio == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
 
-    
+
 });
 
 router.post('/show_other_user_map', function (req, res, next) {
-	if (req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.user_id == undefined || req.body.user_id == '') {
+    if (req.body.token == null || req.body.uid == null || req.body.timestamp == null || req.body.user_id == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -91,8 +77,8 @@ router.post('/show_other_user_map', function (req, res, next) {
         where: {
             userId: req.body.user_id
         }
-    }).then(function(result) {
-        if (result[0] == undefined) {
+    }).then(function (result) {
+        if (result[0] === undefined) {
             res.json({status: 4000, msg: MESSAGE.MOMENT_IS_NULL});
             return;
         }
@@ -101,10 +87,7 @@ router.post('/show_other_user_map', function (req, res, next) {
 });
 
 router.post('/show_map', function (req, res, next) {
-    if (req.body.token == undefined || req.body.token == ''
-        || req.body.uid == undefined || req.body.uid == ''
-        || req.body.timestamp == undefined || req.body.timestamp == ''
-        || req.body.last == undefined || req.body.last == '') {
+    if (req.body.token == null || req.body.uid == null || req.body.timestamp == null || req.body.last == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
@@ -114,14 +97,14 @@ router.post('/show_map', function (req, res, next) {
             createdAt: {
                 $gte: last
             }
-        } 
-    }).then(function(result) {
-        if (result[0] == undefined) {
+        }
+    }).then(function (result) {
+        if (result[0] === undefined) {
             res.json({status: 4000, msg: MESSAGE.MOMENT_IS_NULL});
             return;
         }
         var map = [];
-        result.forEach(function(data) {
+        result.forEach(function (data) {
             var moment = {};
             moment.mid = data.id;
             moment.createdAt = data.createdAt;
