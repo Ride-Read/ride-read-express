@@ -10,6 +10,7 @@ var users = require('./routes/users');
 var moments = require('./routes/moments');
 var util = require('./routes/util');
 var map = require('./routes/map');
+var dating = require('./routes/dating');
 
 var app = express();
 
@@ -30,6 +31,7 @@ app.use('/users', users);
 app.use('/moments', moments);
 app.use('/util', util);
 app.use('/map', map);
+app.use('/dating', dating);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
