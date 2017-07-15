@@ -63,8 +63,6 @@ router.post('/show_map_number', function (req, res, next) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
     }
-
-
 });
 
 router.post('/show_other_user_map', function (req, res, next) {
@@ -87,6 +85,7 @@ router.post('/show_other_user_map', function (req, res, next) {
 });
 
 router.post('/show_map', function (req, res, next) {
+
     if (req.body.token == null || req.body.uid == null || req.body.timestamp == null || req.body.last == null) {
 
         return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
@@ -95,9 +94,10 @@ router.post('/show_map', function (req, res, next) {
     MomentModel.findAll({
         where: {
             createdAt: {
-                $gte: last
+                $gte: parseInt(req.body.last) 
             }
-        }
+        },
+        order: 'hot DESC'
     }).then(function (result) {
         if (result[0] === undefined) {
             res.json({status: 4000, msg: MESSAGE.MOMENT_IS_NULL});
@@ -109,6 +109,8 @@ router.post('/show_map', function (req, res, next) {
             moment.mid = data.id;
             moment.createdAt = data.createdAt;
             moment.pictures = data.pictures;
+            moment.latitude = data.latitude;
+            moment.longitude = data.longitude;
             map.push(moment);
         })
         return res.json({status: 0, data: map, msg: MESSAGE.SUCCESS})

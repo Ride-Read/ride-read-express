@@ -116,7 +116,7 @@ function JiGuangPush(user_id) {
           }
         } else {
           console.log('Sendno: ' + res.sendno);
-          console.log('Msg_id: ' + res.msg_id)
+          console.log('Msg_id: ' + res.msg_id);
         }
       })
 }

@@ -15,5 +15,7 @@ var LantitudeLongitudeDist = require('./config').LantitudeLongitudeDist;
 var JiGuangPush = require('./config').JiGuangPush;
 
 router.post('/post_dating', function (req, res, next) {
-	
-}
+
+});
+
+module.exports = router;

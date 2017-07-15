@@ -295,7 +295,7 @@ router.post('/add_comment', function (req, res, next) {
                         UnreadModel.create(unread).then(function() {
                             JiGuangPush(req.body.user_id);
 
-                            res.json({status: 0, data: data, msg: MESSAGE.SUCCESS});
+                            return res.json({status: 0, data: data, msg: MESSAGE.SUCCESS});
                         })
                     })
                 })
@@ -319,7 +319,7 @@ router.post('/update_thumbsup', function (req, res, next) {
             momentId: req.body.mid
         }
     }).then(function (result) {
-        if (result !== null) {
+        if (result) {
             // 已经点过赞
             ThumbsupModel.destroy({
                 where: {
@@ -327,8 +327,14 @@ router.post('/update_thumbsup', function (req, res, next) {
                     momentId: req.body.mid
                 }
             }).then(function() {
-                return res.json({status: 0, msg: MESSAGE.SUCCESS});
-            })
+                ThumbsupModel.findOne({
+                    where: {
+                        momentId: req.body.mid
+                    }
+                }).then(function(result) {
+                    return res.json({status: 0,data: result, msg: MESSAGE.SUCCESS});
+                });
+            });
         } else {
             // 没有点过赞
             var thumbsup = {
@@ -379,7 +385,7 @@ router.post('/update_thumbsup', function (req, res, next) {
                             };
                             UnreadModel.create(unread).then(function() {
                                 JiGuangPush(req.body.user_id);
-                                res.json({status: 0, data: data});
+                                return res.json({status: 0, msg: MESSAGE.SUCCESS, data: data});
                             })  
                         })
                     })
@@ -488,7 +494,7 @@ router.post('/show_moment', function (req, res, next) {
 
     MomentModel.findAll({
         include: [UserModel, CommentModel, ThumbsupModel],
-        order: 'hot DESC'
+        order: 'createdAt DESC'
     }).then(function(result) {
         console.log(result);
         var totalPages = 0;
@@ -681,7 +687,8 @@ router.post('/post_point', function (req, res, next) {
     var point = {
         userId: req.body.uid,
         latitude: req.body.latitude,
-        longitude: req.body.longitude
+        longitude: req.body.longitude,
+        createdAt: new Date().getTime()
     };
 
     PointModel.create(point).then(function() {
@@ -732,6 +739,55 @@ router.post('/get_unread', function (req, res, next) {
                 return res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
             })    
         })
+    });
+});
+
+router.post('/show_moment_list', function (req, res, next) {
+
+    if (req.body.timestamp == null || req.body.token == null || req.body.uid == null || req.body.moment_list == null) {
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+    MomentModel.findAll({
+        where: {
+            id: req.body.moment_list
+        },
+        order: 'hot DESC',
+        include: [UserModel, CommentModel, ThumbsupModel],
+    }).then(function(result) {
+        var moments = [];
+        var i = 0;
+
+        result.forEach(function(d) {
+            var moment = {
+                user: {}
+            };
+            moment.distance_string = LantitudeLongitudeDist(req.body.longitude, req.body.latitude, d.longitude, d.latitude);
+            moment.type = d.type;
+            moment.moment_location = d.moment_location;
+            moment.cover = d.cover;
+            moment.mid = d.id;
+            moment.pictures = d.pictures;
+            moment.created_at = d.createdAt;
+            moment.msg = d.msg;
+            moment.video = d.video;
+            moment.comment = d.t_comments;
+            moment.thumbs_up = d.t_thumbs_ups;
+
+            UserModel.findOne({
+                where: {
+                    id: d.userId
+                }
+            }).then(function(user) {
+                moment.user.uid = user.id;
+                moment.user.username = user.username;
+                moment.user.sex = user.sex;
+                moment.user.face_url = user.face_url;
+                moments.push(moment);
+            }).catch(next);
+        });
+        setTimeout(function() {
+            return res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
+        }, 1000);
     });
 });
 
