@@ -187,6 +187,7 @@ router.post('/show_user', function (req, res, next) {
             moment.video = d.video;
             moment.comment = d.t_comments;
             moment.thumbs_up = d.t_thumbs_ups;
+            moment.voice_time= d.voice_time;
 
             UserModel.findOne({
                 where: {
@@ -323,17 +324,11 @@ router.post('/update_thumbsup', function (req, res, next) {
             // 已经点过赞
             ThumbsupModel.destroy({
                 where: {
-                    userId: req.body.uid,
+                    uid: req.body.uid,
                     momentId: req.body.mid
                 }
             }).then(function() {
-                ThumbsupModel.findOne({
-                    where: {
-                        momentId: req.body.mid
-                    }
-                }).then(function(result) {
-                    return res.json({status: 0,data: result, msg: MESSAGE.SUCCESS});
-                });
+                return res.json({status: 200, msg: MESSAGE.SUCCESS});
             });
         } else {
             // 没有点过赞
@@ -530,6 +525,7 @@ router.post('/show_moment', function (req, res, next) {
             moment.video = d.video;
             moment.comment = d.t_comments;
             moment.thumbs_up = d.t_thumbs_ups;
+            moment.voice_time= d.voice_time;
 
             UserModel.findOne({
                 where: {
@@ -749,7 +745,7 @@ router.post('/show_moment_list', function (req, res, next) {
     }
     MomentModel.findAll({
         where: {
-            id: req.body.moment_list
+            id: req.body.moment_list.split(',')
         },
         order: 'hot DESC',
         include: [UserModel, CommentModel, ThumbsupModel],
@@ -772,6 +768,7 @@ router.post('/show_moment_list', function (req, res, next) {
             moment.video = d.video;
             moment.comment = d.t_comments;
             moment.thumbs_up = d.t_thumbs_ups;
+            moment.voice_time= d.voice_time;
 
             UserModel.findOne({
                 where: {

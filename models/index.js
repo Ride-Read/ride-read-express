@@ -12,6 +12,7 @@ var Remark = sequelize.import('./remark.js');
 var Point = sequelize.import('./point.js');
 var Unread = sequelize.import('./unread.js');
 var LastMap = sequelize.import('./last_map');
+var Dating = sequelize.import('./dating');
 
 
 User.hasMany(Moment, {foreignKey: 'userId', targetKey: 'userId'});
@@ -44,6 +45,7 @@ exports.Remark = Remark;
 exports.Point = Point;
 exports.Unread = Unread;
 exports.LastMap = LastMap;
+exports.Dating = Dating;
 
 
 
