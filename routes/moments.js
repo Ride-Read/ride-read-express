@@ -270,7 +270,7 @@ router.post('/add_comment', function (req, res, next) {
                 data.msg = result.msg;
                 data.username = result.username;
                 data.uid = result.uid;
-                data.created_at = result.createdAt;
+                data.createdAt = result.createdAt;
                 data.reply_uid = result.reply_uid;
                 data.reply_username = result.reply_username;
 
@@ -544,7 +544,7 @@ router.post('/show_moment', function (req, res, next) {
         });
         setTimeout(function() {
             return res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
-        }, 1000)
+        }, 1000);
     }).catch(next);
 });
 
@@ -719,23 +719,69 @@ router.post('/get_unread', function (req, res, next) {
         }
     }).then(function(results) {
         var ids = [];
-        results.forEach(function(result) {
-            ids.push(result.id);
+        results.forEach(function(item) {
+            ids.push(item.mid);
         });
         MomentModel.findAll({
             where: {
                 id: ids
-            }
-        }).then(function(moments) {
-            UnreadModel.destroy({
-                where: {
-                    uid: req.body.uid
-                }
-            }).then(function() {
+            },
+            include: [UserModel, CommentModel, ThumbsupModel],
+        }).then(function(result) {
+            var moments = [];
+
+            result.forEach(function(d) {
+                var moment = {
+                    user: {},
+                    comment: {},
+                    thumbs_up: {}
+                };
+                console.log(d)
+                moment.type = d.type;
+                moment.moment_location = d.moment_location;
+                moment.cover = d.cover;
+                moment.mid = d.id;
+                moment.pictures = d.pictures;
+                moment.created_at = d.createdAt;
+                moment.msg = d.msg;
+                moment.video = d.video;
+                moment.comment = d.t_comments;
+                moment.thumbs_up = d.t_thumbs_ups;
+                moment.voice_time= d.voice_time;
+
+                UserModel.findOne({
+                    where: {
+                        id: d.userId
+                    }
+                }).then(function(user) {
+                    moment.user.uid = user.id;
+                    moment.user.username = user.username;
+                    moment.user.sex = user.sex;
+                    moment.user.face_url = user.face_url;
+                    moments.push(moment);
+                }).catch(next);
+            });
+            setTimeout(function() {
                 return res.json({status: 0, data: moments, msg: MESSAGE.SUCCESS});
-            })    
+            }, 1000); 
         })
     });
+});
+
+router.post('/remove_unread', function (req, res, next) {
+
+    if (req.body.timestamp == null || req.body.token == null || req.body.uid == null) {
+        return res.json({status: 1000, msg: MESSAGE.PARAMETER_ERROR})
+    }
+
+    UnreadModel.destroy({
+        where: {
+            uid: req.body.uid
+        }
+    }).then(function() {
+        return res.json({status: 0, msg: MESSAGE.SUCCESS});
+    })    
+
 });
 
 router.post('/show_moment_list', function (req, res, next) {

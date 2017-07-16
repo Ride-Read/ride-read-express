@@ -126,7 +126,8 @@ router.post('/register', function (req, res, next) {
         ride_read_id: req.body.ride_read_id,
         follower: 0,
         following: 0,
-        signature: 'null'
+        signature: 'null',
+        creatdAt: timestamp
     };
     UserModel.findOne({
         where: {
@@ -348,6 +349,7 @@ router.post('/follow', function(req, res, next) {
                     model.t_username = users[1].username;
                     model.t_signature = users[1].signature;
                     model.t_face_url = users[1].face_url;
+                    model.updatedAt = timestamp;
                     user1 = users[0];
                     user2 = users[1];
                     user1.following++;
@@ -359,6 +361,7 @@ router.post('/follow', function(req, res, next) {
                     model.t_username = users[0].username;
                     model.t_signature = users[0].signature;
                     model.t_face_url = users[0].face_url;
+                    model.updatedAt = timestamp;
                     user1 = users[1];
                     user2 = users[0];
                     user1.following++;
@@ -469,8 +472,7 @@ router.post('/show_user_info', function(req, res, next) {
                 ride_read_id: user.ride_read_id,
                 longitude: user.longitude,
                 latitude: user.latitude,
-                created_at: user.createdAt,
-                updated_at: timestamp,
+                createdAt: user.createdAt,
                 is_followed: 0
             };
             return res.json({status: 0, data: userData, msg: MESSAGE.SUCCESS});
